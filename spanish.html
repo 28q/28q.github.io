@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スペイン語学習</title>
+    <script>
+        const PASSWORD = "hola123"; // ここにパスワードを設定
+
+        const input = prompt("閲覧パスワードを入力してください：");
+
+        if (input !== PASSWORD) {
+            alert("パスワードが違います。");
+            window.location.href = "index.html";
+        }
+    </script>
+</head>
+<body>
+    <h1>🇪🇸 スペイン語学習ページ</h1>
+    <p>¡Bienvenido! スペイン語学習へようこそ。</p>
+
+    <h2>基本単語</h2>
+    <ul>
+        <li>Hola（こんにちは）</li>
+        <li>Gracias（ありがとう）</li>
+        <li>Adiós（さようなら）</li>
+        <li>Buenos días（おはよう）</li>
+    </ul>
+
+    <p><a href="index.html">← ホームに戻る</a></p>
+</body>
+</html>
