@@ -2,30 +2,45 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>スペイン語学習</title>
-    <script>
-        const PASSWORD = "hola123"; // ここにパスワードを設定
-
-        const input = prompt("閲覧パスワードを入力してください：");
-
-        if (input !== PASSWORD) {
-            alert("パスワードが違います。");
-            window.location.href = "index.html";
+    <title>スペイン語</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.8;
         }
-    </script>
+        h1 {
+            text-align: center;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        a {
+            text-decoration: none;
+            color: #1a73e8;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>🇪🇸 スペイン語学習ページ</h1>
-    <p>¡Bienvenido! スペイン語学習へようこそ。</p>
+    <h1>スペイン語</h1>
 
-    <h2>基本単語</h2>
+    <h2>1列</h2>
     <ul>
-        <li>Hola（こんにちは）</li>
-        <li>Gracias（ありがとう）</li>
-        <li>Adiós（さようなら）</li>
-        <li>Buenos días（おはよう）</li>
+        <li><a href="spanish/1-1.html">1-1</a></li>
+        <li><a href="#">1-2</a></li>
+        <li><a href="#">1-3</a></li>
     </ul>
 
-    <p><a href="index.html">← ホームに戻る</a></p>
+    <h2>2列</h2>
+    <ul>
+        <li><a href="#">2-1</a></li>
+        <li><a href="#">2-2</a></li>
+        <li><a href="#">2-3</a></li>
+    </ul>
+
+    <p><a href="index.html">← トップページ</a></p>
 </body>
 </html>
