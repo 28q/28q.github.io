@@ -56,30 +56,225 @@
     <script>
         // 問題ストック（後で追加可能）
         const definiteArticles = [
+            // 男性単数
             { noun: "libro", answer: "el" },
+            { noun: "vino", answer: "el" },
+            { noun: "bolígrafo", answer: "el" },
+            { noun: "cuaderno", answer: "el" },
+            { noun: "hospital", answer: "el" },
+            { noun: "mapa", answer: "el" },
+            { noun: "día", answer: "el" },
+            { noun: "problema", answer: "el" },
+        
+            // 女性単数
             { noun: "mesa", answer: "la" },
+            { noun: "plaza", answer: "la" },
+            { noun: "ciudad", answer: "la" },
+            { noun: "estación", answer: "la" },
+            { noun: "televisión", answer: "la" },
+            { noun: "flor", answer: "la" },
+            { noun: "calle", answer: "la" },
+            { noun: "mano", answer: "la" },
+            { noun: "foto", answer: "la" },
+            { noun: "moto", answer: "la" },
+            { noun: "pluma", answer: "la" },
+        
+            // 男性複数
+            { noun: "libros", answer: "los" },
+            { noun: "vinos", answer: "los" },
+            { noun: "bolígrafos", answer: "los" },
+            { noun: "cuadernos", answer: "los" },
+            { noun: "hospitales", answer: "los" },
+            { noun: "mapas", answer: "los" },
+            { noun: "días", answer: "los" },
+            { noun: "problemas", answer: "los" },
+        
+            // 女性複数
+            { noun: "mesas", answer: "las" },
+            { noun: "plazas", answer: "las" },
+            { noun: "ciudades", answer: "las" },
+            { noun: "estaciones", answer: "las" },
+            { noun: "televisiones", answer: "las" },
+            { noun: "flores", answer: "las" },
+            { noun: "calles", answer: "las" },
+            { noun: "manos", answer: "las" },
+            { noun: "fotos", answer: "las" },
+            { noun: "motos", answer: "las" },
+            { noun: "plumas", answer: "las" },
+        
+            // 生物名詞
+            { noun: "hombre", answer: "el" },
+            { noun: "hombres", answer: "los" },
+            { noun: "mujer", answer: "la" },
+            { noun: "mujeres", answer: "las" },
+        
+            // 超初歩単語
             { noun: "amigo", answer: "el" },
+            { noun: "amigos", answer: "los" },
+            { noun: "amiga", answer: "la" },
+            { noun: "amigas", answer: "las" },
             { noun: "casa", answer: "la" },
-            { noun: "perro", answer: "el" },
-            { noun: "escuela", answer: "la" }
+            { noun: "casas", answer: "las" },
+            { noun: "escuela", answer: "la" },
+            { noun: "escuelas", answer: "las" }
         ];
 
         const indefiniteArticles = [
+            // 教科書掲載語
             { noun: "libro", answer: "un" },
+            { noun: "vino", answer: "un" },
+            { noun: "bolígrafo", answer: "un" },
+            { noun: "patio", answer: "un" },
+            { noun: "hospital", answer: "un" },
+            { noun: "flor", answer: "una" },
+            { noun: "calle", answer: "una" },
             { noun: "mesa", answer: "una" },
+            { noun: "plaza", answer: "una" },
+            { noun: "ciudad", answer: "una" },
+            { noun: "estación", answer: "una" },
+            { noun: "televisión", answer: "una" },
+            { noun: "foto", answer: "una" },
+            { noun: "mano", answer: "una" },
+            { noun: "moto", answer: "una" },
+            { noun: "día", answer: "un" },
+            { noun: "mapa", answer: "un" },
+            { noun: "problema", answer: "un" },
+            { noun: "cuaderno", answer: "un" },
+            { noun: "pluma", answer: "una" },
+        
+            // 生物名詞
+            { noun: "hombre", answer: "un" },
+            { noun: "padre", answer: "un" },
+            { noun: "chico", answer: "un" },
+            { noun: "toro", answer: "un" },
+            { noun: "mujer", answer: "una" },
+            { noun: "madre", answer: "una" },
+            { noun: "chica", answer: "una" },
+            { noun: "vaca", answer: "una" },
+        
+            // 超初歩単語5個
             { noun: "amigo", answer: "un" },
+            { noun: "amiga", answer: "una" },
             { noun: "casa", answer: "una" },
-            { noun: "perro", answer: "un" },
-            { noun: "escuela", answer: "una" }
+            { noun: "escuela", answer: "una" },
+            { noun: "gato", answer: "un" }
         ];
 
         const fillInTheBlanks = [
-            { question: "(　) días（おはよう）", answer: "Buenos" },
-            { question: "Hola, (　) llamo Ana.（私はアナです）", answer: "me" },
-            { question: "Buenas (　).（こんばんは）", answer: "noches" },
-            { question: "(　) gracias.（どうもありがとう）", answer: "Muchas" },
-            { question: "(　) llamas?（君の名前は？）", answer: "Cómo te" },
-            { question: "Hasta (　).（また明日）", answer: "mañana" }
+            // yo
+            { question: "(　) soy estudiante.", answer: "Yo" },
+            { question: "(　) soy japonés.", answer: "Yo" },
+            { question: "(　) estoy en casa.", answer: "Yo" },
+        
+            // tú
+            { question: "(　) eres estudiante.", answer: "Tú" },
+            { question: "(　) estás en la escuela.", answer: "Tú" },
+            { question: "(　) eres mi amigo.", answer: "Tú" },
+        
+            // él
+            { question: "(　) es ingeniero.", answer: "Él" },
+            { question: "(　) está en Madrid.", answer: "Él" },
+            { question: "(　) es profesor.", answer: "Él" },
+        
+            // ella
+            { question: "(　) es estudiante.", answer: "Ella" },
+            { question: "(　) está en casa.", answer: "Ella" },
+            { question: "(　) es mi amiga.", answer: "Ella" },
+        
+            // usted
+            { question: "(　) es profesor.", answer: "Usted" },
+            { question: "(　) está en Japón.", answer: "Usted" },
+            { question: "(　) es estudiante.", answer: "Usted" },
+        
+            // nosotros
+            { question: "(　) somos amigos.", answer: "Nosotros" },
+            { question: "(　) estamos en México.", answer: "Nosotros" },
+            { question: "(　) somos estudiantes.", answer: "Nosotros" },
+        
+            // nosotras
+            { question: "(　) somos amigas.", answer: "Nosotras" },
+            { question: "(　) estamos en España.", answer: "Nosotras" },
+            { question: "(　) somos alumnas.", answer: "Nosotras" },
+        
+            // vosotros
+            { question: "(　) sois estudiantes.", answer: "Vosotros" },
+            { question: "(　) estáis en Madrid.", answer: "Vosotros" },
+            { question: "(　) sois amigos.", answer: "Vosotros" },
+        
+            // vosotras
+            { question: "(　) sois estudiantes.", answer: "Vosotras" },
+            { question: "(　) estáis en casa.", answer: "Vosotras" },
+            { question: "(　) sois amigas.", answer: "Vosotras" },
+        
+            // ellos
+            { question: "(　) son estudiantes.", answer: "Ellos" },
+            { question: "(　) están en México.", answer: "Ellos" },
+            { question: "(　) son amigos.", answer: "Ellos" },
+        
+            // ellas
+            { question: "(　) son estudiantes.", answer: "Ellas" },
+            { question: "(　) están en Madrid.", answer: "Ellas" },
+            { question: "(　) son amigas.", answer: "Ellas" },
+        
+            // ustedes
+            { question: "(　) son profesores.", answer: "Ustedes" },
+            { question: "(　) están en España.", answer: "Ustedes" },
+            { question: "(　) son estudiantes.", answer: "Ustedes" },
+        
+            // ser（6形 × 各3問）
+            { question: "Yo (　) estudiante.", answer: "soy" },
+            { question: "Yo (　) japonés.", answer: "soy" },
+            { question: "Yo (　) profesor.", answer: "soy" },
+        
+            { question: "Tú (　) estudiante.", answer: "eres" },
+            { question: "Tú (　) mi amigo.", answer: "eres" },
+            { question: "Tú (　) japonés.", answer: "eres" },
+        
+            { question: "Él (　) ingeniero.", answer: "es" },
+            { question: "Ella (　) estudiante.", answer: "es" },
+            { question: "Usted (　) profesor.", answer: "es" },
+        
+            { question: "Nosotros (　) estudiantes.", answer: "somos" },
+            { question: "Nosotros (　) amigos.", answer: "somos" },
+            { question: "Nosotros (　) japoneses.", answer: "somos" },
+        
+            { question: "Vosotros (　) estudiantes.", answer: "sois" },
+            { question: "Vosotros (　) amigos.", answer: "sois" },
+            { question: "Vosotros (　) japoneses.", answer: "sois" },
+        
+            { question: "Ellos (　) estudiantes.", answer: "son" },
+            { question: "Ellos (　) amigos.", answer: "son" },
+            { question: "Ellos (　) japoneses.", answer: "son" },
+        
+            // estar（6形 × 各3問）
+            { question: "Yo (　) en casa.", answer: "estoy" },
+            { question: "Yo (　) en Japón.", answer: "estoy" },
+            { question: "Yo (　) en la escuela.", answer: "estoy" },
+        
+            { question: "Tú (　) en casa.", answer: "estás" },
+            { question: "Tú (　) en Madrid.", answer: "estás" },
+            { question: "Tú (　) en la escuela.", answer: "estás" },
+        
+            { question: "Él (　) en Madrid.", answer: "está" },
+            { question: "Ella (　) en casa.", answer: "está" },
+            { question: "Usted (　) en Japón.", answer: "está" },
+        
+            { question: "Nosotros (　) en México.", answer: "estamos" },
+            { question: "Nosotros (　) en la escuela.", answer: "estamos" },
+            { question: "Nosotros (　) en casa.", answer: "estamos" },
+        
+            { question: "Vosotros (　) en Madrid.", answer: "estáis" },
+            { question: "Vosotros (　) en casa.", answer: "estáis" },
+            { question: "Vosotros (　) en la escuela.", answer: "estáis" },
+        
+            { question: "Ellos (　) en México.", answer: "están" },
+            { question: "Ellos (　) en Madrid.", answer: "están" },
+            { question: "Ellos (　) en casa.", answer: "están" },
+        
+            // 基本語彙
+            { question: "Somos (　) México.", answer: "de" },
+            { question: "El libro es (　) Ana.", answer: "de" },
+            { question: "La mesa es (　) madera.", answer: "de" },
         ];
 
         let currentQuiz = [];
