@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スペイン語 1-1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.8;
+        }
+        h1 {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        input {
+            margin-left: 10px;
+            padding: 5px;
+            font-size: 16px;
+            width: 120px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>スペイン語 1-1 演習</h1>
 
+    <button onclick="generateQuiz()">問題を生成する</button>
+
+    <form id="quizForm"></form>
+
+    <button onclick="gradeQuiz()">正答を判定する</button>
+
+    <div id="result"></div>
+
+    <p><a href="../spanish.html">← 目次へ戻る</a></p>
+
+    <script>
+        // 問題ストック（後で追加可能）
+        const definiteArticles = [
+            { noun: "libro", answer: "el" },
+            { noun: "mesa", answer: "la" },
+            { noun: "amigo", answer: "el" },
+            { noun: "casa", answer: "la" },
+            { noun: "perro", answer: "el" },
+            { noun: "escuela", answer: "la" }
+        ];
+
+        const indefiniteArticles = [
+            { noun: "libro", answer: "un" },
+            { noun: "mesa", answer: "una" },
+            { noun: "amigo", answer: "un" },
+            { noun: "casa", answer: "una" },
+            { noun: "perro", answer: "un" },
+            { noun: "escuela", answer: "una" }
+        ];
+
+        const fillInTheBlanks = [
+            { question: "(　) días（おはよう）", answer: "Buenos" },
+            { question: "Hola, (　) llamo Ana.（私はアナです）", answer: "me" },
+            { question: "Buenas (　).（こんばんは）", answer: "noches" },
+            { question: "(　) gracias.（どうもありがとう）", answer: "Muchas" },
+            { question: "(　) llamas?（君の名前は？）", answer: "Cómo te" },
+            { question: "Hasta (　).（また明日）", answer: "mañana" }
+        ];
+
+        let currentQuiz = [];
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function generateQuiz() {
+            const form = document.getElementById("quizForm");
+            const result = document.getElementById("result");
+            form.innerHTML = "";
+            result.innerHTML = "";
+
+            currentQuiz = [];
+
+            // 第1問：定冠詞（2問）
+            const defQs = shuffle([...definiteArticles]).slice(0, 2);
+            form.innerHTML += "<h3>1. 以下の名詞に適切な定冠詞をつけてください。（1×2）</h3>";
+            defQs.forEach((q, i) => {
+                currentQuiz.push(q.answer.toLowerCase());
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${q.noun}
+                        <input type="text" id="q${currentQuiz.length - 1}">
+                    </div>
+                `;
+            });
+
+            // 第2問：不定冠詞（2問）
+            const indefQs = shuffle([...indefiniteArticles]).slice(0, 2);
+            form.innerHTML += "<h3>2. 以下の名詞に適切な不定冠詞をつけてください。（1×2）</h3>";
+            indefQs.forEach((q, i) => {
+                currentQuiz.push(q.answer.toLowerCase());
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${q.noun}
+                        <input type="text" id="q${currentQuiz.length - 1}">
+                    </div>
+                `;
+            });
+
+            // 第3問：穴埋め（6問）
+            const fillQs = shuffle([...fillInTheBlanks]).slice(0, 6);
+            form.innerHTML += "<h3>3. 以下のかっこ内に、和訳に合うように適語を入れてください。（1×6）</h3>";
+            fillQs.forEach((q, i) => {
+                currentQuiz.push(q.answer.toLowerCase());
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${q.question}
+                        <input type="text" id="q${currentQuiz.length - 1}">
+                    </div>
+                `;
+            });
+        }
+
+        function gradeQuiz() {
+            let score = 0;
+            let feedback = "<h3>採点結果</h3>";
+
+            currentQuiz.forEach((answer, i) => {
+                const userInput = document.getElementById(`q${i}`).value.trim().toLowerCase();
+                const correct = userInput === answer;
+
+                if (correct) score++;
+
+                feedback += `
+                    <p class="${correct ? "correct" : "incorrect"}">
+                        問題${i + 1}: 
+                        ${correct ? "正解" : `不正解（正答: ${answer}）`}
+                    </p>
+                `;
+            });
+
+            feedback += `<p>得点: ${score} / ${currentQuiz.length}</p>`;
+            document.getElementById("result").innerHTML = feedback;
+        }
+    </script>
+</body>
+</html>
