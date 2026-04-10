@@ -336,23 +336,19 @@
             });
         }
 
-        function gradeQuiz() {
-            let score = 0;
-            let feedback = "<h3>採点結果</h3>";
-
-            currentQuiz.forEach((answer, i) => {
-                const userInput = document.getElementById(`q${i}`).value.trim().toLowerCase();
-                const correct = userInput === answer;
-
-                if (correct) score++;
-
-                feedback += `
-                    <p class="${correct ? "correct" : "incorrect"}">
-                        問題${i + 1}: 
-                        ${correct ? "正解" : `不正解（正答: ${answer}）`}
-                    </p>
-                `;
-            });
+        currentQuiz.forEach((answer, i) => {
+            const userInput = document.getElementById(`q${i}`).value.trim();
+            const correct = userInput.toLowerCase() === answer.toLowerCase();
+        
+            if (correct) score++;
+        
+            feedback += `
+                <p class="${correct ? "correct" : "incorrect"}">
+                    問題${i + 1}: 
+                    ${correct ? "正解" : `不正解（正答: ${answer}）`}
+                </p>
+            `;
+        });
 
             feedback += `<p>得点: ${score} / ${currentQuiz.length}</p>`;
             document.getElementById("result").innerHTML = feedback;
