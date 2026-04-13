@@ -54,18 +54,33 @@
             gap: 8px;
             margin-top: 10px;
         }
-        .choice-btn {
+        
+       .choice-btn {
             min-width: 90px;
             padding: 8px 12px;
             font-size: 15px;
             border-radius: 8px;
             border: 1px solid #bbb;
-            background: #fff;
+            background: #ffffff;
+            transition: all 0.2s ease;
         }
+        
+        /* ホバー時 */
+        .choice-btn:hover {
+            background: #e6f0ff;
+        }
+        
+        /* 選択時（青色表示） */
         .choice-btn.selected {
-            background: #dfefff;
-            border-color: #4a86e8;
+            background-color: #4a86e8 !important;
+            color: #ffffff !important;
+            border-color: #2f5fb3 !important;
             font-weight: bold;
+        }
+        
+        /* 選択中はホバーしても色を維持 */
+        .choice-btn.selected:hover {
+            background-color: #4a86e8 !important;
         }
         .reveal-btn {
             margin-top: 8px;
