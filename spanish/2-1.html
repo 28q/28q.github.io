@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -54,8 +55,7 @@
             gap: 8px;
             margin-top: 10px;
         }
-        
-       .choice-btn {
+        .choice-btn {
             min-width: 90px;
             padding: 8px 12px;
             font-size: 15px;
@@ -64,23 +64,17 @@
             background: #ffffff;
             transition: all 0.2s ease;
         }
-        
-        /* ホバー時 */
         .choice-btn:hover {
             background: #e6f0ff;
         }
-        
-        /* 選択時（青色表示） */
-        .choice-btn.selected {
+        .choice-btn.selected,
+        .choice-btn.selected:hover,
+        .choice-btn.selected:focus {
             background-color: #4a86e8 !important;
             color: #ffffff !important;
             border-color: #2f5fb3 !important;
             font-weight: bold;
-        }
-        
-        /* 選択中はホバーしても色を維持 */
-        .choice-btn.selected:hover {
-            background-color: #4a86e8 !important;
+            box-shadow: 0 0 0 2px rgba(74, 134, 232, 0.25);
         }
         .reveal-btn {
             margin-top: 8px;
