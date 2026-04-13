@@ -15,7 +15,7 @@
         button {
             padding: 10px 20px;
             font-size: 16px;
-            margin: 10px 0;
+            margin: 10px 5px 10px 0;
             cursor: pointer;
         }
         input {
@@ -38,12 +38,19 @@
             font-weight: bold;
             font-size: 18px;
         }
+        .translation {
+            color: #555;
+            font-size: 0.9em;
+            display: none;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>スペイン語 1-1 演習</h1>
 
     <button onclick="generateQuiz()">問題を生成する</button>
+    <button onclick="toggleTranslations()" id="toggleBtn">和訳を表示</button>
 
     <form id="quizForm"></form>
 
@@ -54,7 +61,92 @@
     <p><a href="../spanish.html">← 目次へ戻る</a></p>
 
     <script>
-        // 問題ストック（後で追加可能）
+        let showTranslations = false;
+
+        function toggleTranslations() {
+            showTranslations = !showTranslations;
+            const elements = document.querySelectorAll(".translation");
+            elements.forEach(el => {
+                el.style.display = showTranslations ? "inline" : "none";
+            });
+            document.getElementById("toggleBtn").textContent =
+                showTranslations ? "和訳を非表示" : "和訳を表示";
+        }
+
+        // 第3問用：スペイン語→日本語の対応表
+        const translations = {
+            "(　) soy estudiante.": "私は学生です。",
+            "(　) soy japonés.": "私は日本人です。",
+            "(　) estoy en casa.": "私は家にいます。",
+            "(　) eres estudiante.": "君は学生です。",
+            "(　) estás en la escuela.": "君は学校にいます。",
+            "(　) eres mi amigo.": "君は私の友達です。",
+            "(　) es ingeniero.": "彼はエンジニアです。",
+            "(　) está en Madrid.": "彼はマドリードにいます。",
+            "(　) es profesor.": "彼は教師です。",
+            "(　) es estudiante.": "彼女は学生です。",
+            "(　) está en casa.": "彼女は家にいます。",
+            "(　) es mi amiga.": "彼女は私の友達です。",
+            "(　) somos amigos.": "私たちは友達です。",
+            "(　) estamos en México.": "私たちはメキシコにいます。",
+            "(　) somos estudiantes.": "私たちは学生です。",
+            "(　) somos amigas.": "私たちは女友達です。",
+            "(　) estamos en España.": "私たちはスペインにいます。",
+            "(　) somos alumnas.": "私たちは女子学生です。",
+            "(　) sois estudiantes.": "君たちは学生です。",
+            "(　) estáis en Madrid.": "君たちはマドリードにいます。",
+            "(　) sois amigos.": "君たちは友達です。",
+            "(　) estáis en casa.": "君たちは家にいます。",
+            "(　) sois amigas.": "君たちは女友達です。",
+            "(　) son estudiantes.": "彼ら／彼女らは学生です。",
+            "(　) están en México.": "彼らはメキシコにいます。",
+            "(　) son amigos.": "彼らは友達です。",
+            "(　) están en Madrid.": "彼女らはマドリードにいます。",
+            "(　) son amigas.": "彼女らは女友達です。",
+            "(　) son profesores.": "あなた方は教師です。",
+            "(　) están en España.": "あなた方はスペインにいます。",
+            "Yo (　) estudiante.": "私は学生です。",
+            "Yo (　) japonés.": "私は日本人です。",
+            "Yo (　) profesor.": "私は教師です。",
+            "Tú (　) estudiante.": "君は学生です。",
+            "Tú (　) mi amigo.": "君は私の友達です。",
+            "Tú (　) japonés.": "君は日本人です。",
+            "Él (　) ingeniero.": "彼はエンジニアです。",
+            "Ella (　) estudiante.": "彼女は学生です。",
+            "Usted (　) profesor.": "あなたは教師です。",
+            "Nosotros (　) estudiantes.": "私たちは学生です。",
+            "Nosotros (　) amigos.": "私たちは友達です。",
+            "Nosotros (　) japoneses.": "私たちは日本人です。",
+            "Vosotros (　) estudiantes.": "君たちは学生です。",
+            "Vosotros (　) amigos.": "君たちは友達です。",
+            "Vosotros (　) japoneses.": "君たちは日本人です。",
+            "Ellos (　) estudiantes.": "彼らは学生です。",
+            "Ellos (　) amigos.": "彼らは友達です。",
+            "Ellos (　) japoneses.": "彼らは日本人です。",
+            "Yo (　) en casa.": "私は家にいます。",
+            "Yo (　) en Japón.": "私は日本にいます。",
+            "Yo (　) en la escuela.": "私は学校にいます。",
+            "Tú (　) en casa.": "君は家にいます。",
+            "Tú (　) en Madrid.": "君はマドリードにいます。",
+            "Tú (　) en la escuela.": "君は学校にいます。",
+            "Él (　) en Madrid.": "彼はマドリードにいます。",
+            "Ella (　) en casa.": "彼女は家にいます。",
+            "Usted (　) en Japón.": "あなたは日本にいます。",
+            "Nosotros (　) en México.": "私たちはメキシコにいます。",
+            "Nosotros (　) en la escuela.": "私たちは学校にいます。",
+            "Nosotros (　) en casa.": "私たちは家にいます。",
+            "Vosotros (　) en Madrid.": "君たちはマドリードにいます。",
+            "Vosotros (　) en casa.": "君たちは家にいます。",
+            "Vosotros (　) en la escuela.": "君たちは学校にいます。",
+            "Ellos (　) en México.": "彼らはメキシコにいます。",
+            "Ellos (　) en Madrid.": "彼らはマドリードにいます。",
+            "Ellos (　) en casa.": "彼らは家にいます。",
+            "Somos (　) México.": "私たちはメキシコ出身です。",
+            "El libro es (　) Ana.": "その本はアナのものです。",
+            "La mesa es (　) madera.": "その机は木製です。"
+        };
+
+        // 既存の配列（変更なし）
         const definiteArticles = [
             // 男性単数
             { noun: "libro", answer: "el" },
@@ -280,7 +372,7 @@
         let currentQuiz = [];
 
         function shuffle(array) {
-            const arr = [...array]; // 元の配列を保護
+            const arr = [...array];
             for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -293,10 +385,9 @@
             const result = document.getElementById("result");
             form.innerHTML = "";
             result.innerHTML = "";
-
             currentQuiz = [];
 
-            // 第1問：定冠詞（2問）
+            // 第1問
             const defQs = shuffle([...definiteArticles]).slice(0, 2);
             form.innerHTML += "<h3>1. 以下の名詞に適切な定冠詞をつけてください。（1×2）</h3>";
             defQs.forEach((q, i) => {
@@ -305,11 +396,10 @@
                     <div class="question">
                         (${i + 1}) ${q.noun}
                         <input type="text" id="q${currentQuiz.length - 1}">
-                    </div>
-                `;
+                    </div>`;
             });
 
-            // 第2問：不定冠詞（2問）
+            // 第2問
             const indefQs = shuffle([...indefiniteArticles]).slice(0, 2);
             form.innerHTML += "<h3>2. 以下の名詞に適切な不定冠詞をつけてください。（1×2）</h3>";
             indefQs.forEach((q, i) => {
@@ -318,45 +408,46 @@
                     <div class="question">
                         (${i + 1}) ${q.noun}
                         <input type="text" id="q${currentQuiz.length - 1}">
-                    </div>
-                `;
+                    </div>`;
             });
 
-            // 第3問：穴埋め（6問）
+            // 第3問
             const fillQs = shuffle([...fillInTheBlanks]).slice(0, 6);
             form.innerHTML += "<h3>3. 以下のかっこ内に、和訳に合うように適語を入れてください。（1×6）</h3>";
             fillQs.forEach((q, i) => {
                 currentQuiz.push(q.answer.toLowerCase());
+                const jp = translations[q.question] || "";
                 form.innerHTML += `
                     <div class="question">
                         (${i + 1}) ${q.question}
+                        <span class="translation">（和訳：${jp}）</span>
                         <input type="text" id="q${currentQuiz.length - 1}">
-                    </div>
-                `;
+                    </div>`;
             });
+
+            if (showTranslations) toggleTranslations();
         }
 
         function gradeQuiz() {
             let score = 0;
             let feedback = "<h3>採点結果</h3>";
-        
+
             currentQuiz.forEach((answer, i) => {
                 const inputElement = document.getElementById(`q${i}`);
                 if (!inputElement) return;
-        
-                const userInput = inputElement.value.trim();
-                const correct = userInput.toLowerCase() === answer.toLowerCase();
-        
+
+                const userInput = inputElement.value.trim().toLowerCase();
+                const correct = userInput === answer;
+
                 if (correct) score++;
-        
+
                 feedback += `
                     <p class="${correct ? "correct" : "incorrect"}">
-                        問題${i + 1}: 
+                        問題${i + 1}:
                         ${correct ? "正解" : `不正解（正答: ${answer}）`}
-                    </p>
-                `;
+                    </p>`;
             });
-        
+
             feedback += `<p>得点: ${score} / ${currentQuiz.length}</p>`;
             document.getElementById("result").innerHTML = feedback;
         }
