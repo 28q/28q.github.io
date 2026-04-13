@@ -12,251 +12,366 @@
         h1 {
             text-align: center;
         }
+        h3 {
+            margin-top: 28px;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 26px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
         button {
-            padding: 10px 15px;
+            padding: 10px 14px;
             font-size: 15px;
-            margin: 5px;
+            margin: 6px 6px 6px 0;
             cursor: pointer;
-            border-radius: 6px;
-            border: 1px solid #888;
-            background-color: #f8f8f8;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            background: #fafafa;
         }
         button:hover {
-            background-color: #e6e6e6;
+            background: #f0f0f0;
         }
         input {
             margin-left: 10px;
-            padding: 5px;
+            padding: 6px 8px;
             font-size: 16px;
-            width: 160px;
+            width: 170px;
+            border: 1px solid #bbb;
+            border-radius: 6px;
         }
         .question {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background: #fff;
+        }
+        .choice-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .choice-btn {
+            min-width: 90px;
+            padding: 8px 12px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+            background: #fff;
         }
         .choice-btn.selected {
-            background-color: #4a90e2;
-            color: white;
+            background: #dfefff;
+            border-color: #4a86e8;
             font-weight: bold;
         }
-        .correct { color: green; }
-        .incorrect { color: red; }
+        .reveal-btn {
+            margin-top: 8px;
+            background: #f7f7f7;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
         #result {
             margin-top: 20px;
-            font-size: 18px;
             font-weight: bold;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
-<h1>スペイン語 1-2 演習</h1>
+    <h1>スペイン語 1-2 演習</h1>
 
-<button onclick="generateQuiz()">問題を生成する</button>
-<form id="quizForm"></form>
-<button onclick="gradeQuiz()">正答を判定する</button>
+    <button type="button" onclick="generateQuiz()">問題を生成する</button>
+    <button type="button" onclick="gradeQuiz()">正答を判定する</button>
 
-<div id="result"></div>
-<p><a href="../spanish.html">← 目次へ戻る</a></p>
+    <div id="quizForm"></div>
 
-<script>
-/* ---------------- アルファベット ---------------- */
-const alphabetQuestions = [
-    { letter: "A", answer: "a" },
-    { letter: "B", answer: "be" },
-    { letter: "C", answer: "ce" },
-    { letter: "D", answer: "de" },
-    { letter: "E", answer: "e" },
-    { letter: "F", answer: "efe" },
-    { letter: "G", answer: "ge" },
-    { letter: "H", answer: "hache" },
-    { letter: "I", answer: "i" },
-    { letter: "J", answer: "jota" },
-    { letter: "K", answer: "ka" },
-    { letter: "L", answer: "ele" },
-    { letter: "M", answer: "eme" },
-    { letter: "N", answer: "ene" },
-    { letter: "Ñ", answer: "eñe" },
-    { letter: "O", answer: "o" },
-    { letter: "P", answer: "pe" },
-    { letter: "Q", answer: "cu" },
-    { letter: "R", answer: "ere" },
-    { letter: "S", answer: "ese" },
-    { letter: "T", answer: "te" },
-    { letter: "U", answer: "u" },
-    { letter: "V", answer: "uve" },
-    { letter: "W", answer: "uve doble" },
-    { letter: "X", answer: "equis" },
-    { letter: "Y", answer: "ye" },
-    { letter: "Z", answer: "zeta" }
-];
+    <div id="result"></div>
 
-/* ---------------- 問題2(1) 二重母音なし ---------------- */
-const noDiphthongQuestions = [
-    { correct: "casa", options: ["casa", "aire", "cielo", "bueno"] },
-    { correct: "mesa", options: ["mesa", "tierra", "nuevo", "fuego"] },
-    { correct: "libro", options: ["libro", "reina", "ciudad", "cielo"] },
-    { correct: "gato", options: ["gato", "huevo", "aire", "suelo"] },
-    { correct: "vino", options: ["vino", "peine", "causa", "nueve"] },
-    { correct: "padre", options: ["padre", "buey", "europa", "viejo"] },
-    { correct: "perro", options: ["perro", "cielo", "rueda", "cuatro"] },
-    { correct: "carta", options: ["carta", "deuda", "vuelve", "nuevo"] },
-    { correct: "silla", options: ["silla", "tierra", "aire", "fuego"] },
-    { correct: "amigo", options: ["amigo", "ciudad", "peine", "huevo"] }
-];
+    <p><a href="../spanish.html">← 目次へ戻る</a></p>
 
-/* ---------------- 問題2(2) 二重子音なし ---------------- */
-const noClusterQuestions = [
-    { correct: "casa", options: ["casa", "plaza", "tren", "blanco"] },
-    { correct: "mesa", options: ["mesa", "flor", "prado", "clase"] },
-    { correct: "amigo", options: ["amigo", "plato", "brisa", "grito"] },
-    { correct: "gato", options: ["gato", "fruta", "crudo", "globo"] },
-    { correct: "vino", options: ["vino", "bravo", "pluma", "claro"] },
-    { correct: "familia", options: ["familia", "tren", "plato", "grano"] },
-    { correct: "cocina", options: ["cocina", "flor", "brisa", "cráneo"] },
-    { correct: "domingo", options: ["domingo", "prado", "blusa", "clase"] },
-    { correct: "piano", options: ["piano", "plaza", "grito", "fruta"] },
-    { correct: "libro", options: ["libro", "tren", "plato", "bravo"] }
-];
+    <script>
+        const alphabetQuestions = [
+            { letter: "A", answer: "a" },
+            { letter: "B", answer: "be" },
+            { letter: "C", answer: "ce" },
+            { letter: "D", answer: "de" },
+            { letter: "E", answer: "e" },
+            { letter: "F", answer: "efe" },
+            { letter: "G", answer: "ge" },
+            { letter: "H", answer: "hache" },
+            { letter: "I", answer: "i" },
+            { letter: "J", answer: "jota" },
+            { letter: "K", answer: "ka" },
+            { letter: "L", answer: "ele" },
+            { letter: "M", answer: "eme" },
+            { letter: "N", answer: "ene" },
+            { letter: "Ñ", answer: "eñe" },
+            { letter: "O", answer: "o" },
+            { letter: "P", answer: "pe" },
+            { letter: "Q", answer: "cu" },
+            { letter: "R", answer: "ere" },
+            { letter: "S", answer: "ese" },
+            { letter: "T", answer: "te" },
+            { letter: "U", answer: "u" },
+            { letter: "V", answer: "uve" },
+            { letter: "W", answer: "uve doble" },
+            { letter: "X", answer: "equis" },
+            { letter: "Y", answer: "ye" },
+            { letter: "Z", answer: "zeta" }
+        ];
 
-/* ---------------- 挨拶 ---------------- */
-const greetingQuestions = [
-    { spanish: "Hola.", answer: "こんにちは。（１日中）" },
-    { spanish: "Buenos dias.", answer: "おはようございます" },
-    { spanish: "Buenos tardes.", answer: "こんにちは（昼食後）" },
-    { spanish: "Buenos noches.", answer: "こんばんは" },
-    { spanish: "Hasta luego.", answer: "また後で" },
-    { spanish: "Adios.", answer: "さようなら" },
-    { spanish: "?Que tal?", answer: "元気？" },
-    { spanish: "Gracias.", answer: "ありがとう" },
-    { spanish: "De nada.", answer: "どういたしまして" },
-    { spanish: "Lo siento.", answer: "申し訳ありません" },
-    { spanish: "Si.", answer: "はい" },
-    { spanish: "No.", answer: "いいえ" },
-    { spanish: "Encantado.", answer: "初めまして（男性）" },
-    { spanish: "Encantada.", answer: "初めまして（女性）" },
-    { spanish: "Mucho gusto.", answer: "初めまして（男性または女性）" }
-];
+        const noDiphthongQuestions = [
+            { correct: "casa", options: ["casa", "aire", "cielo", "bueno"] },
+            { correct: "mesa", options: ["mesa", "tierra", "fuego", "reina"] },
+            { correct: "gato", options: ["gato", "huevo", "ciudad", "ruido"] },
+            { correct: "padre", options: ["padre", "buey", "tiempo", "causa"] },
+            { correct: "amigo", options: ["amigo", "nueve", "reina", "fuego"] },
+            { correct: "mano", options: ["mano", "aceite", "buey", "ciudad"] },
+            { correct: "vino", options: ["vino", "tierra", "causa", "huevo"] },
+            { correct: "joven", options: ["joven", "aire", "suelo", "nueve"] },
+            { correct: "color", options: ["color", "fuego", "reina", "cielo"] },
+            { correct: "dedo", options: ["dedo", "bueno", "tiempo", "ciudad"] }
+        ];
 
-let currentQuiz = [];
-let selectedAnswers = {};
+        const noClusterQuestions = [
+            { correct: "casa", options: ["casa", "plaza", "tren", "blanco"] },
+            { correct: "mesa", options: ["mesa", "flor", "prado", "clase"] },
+            { correct: "amigo", options: ["amigo", "grito", "fruta", "crudo"] },
+            { correct: "gato", options: ["gato", "globo", "brazo", "clavo"] },
+            { correct: "vino", options: ["vino", "trono", "plato", "frío"] },
+            { correct: "dedo", options: ["dedo", "blusa", "brasa", "cruz"] },
+            { correct: "mano", options: ["mano", "prenda", "claro", "grande"] },
+            { correct: "radio", options: ["radio", "flor", "plaza", "tren"] },
+            { correct: "cine", options: ["cine", "blanco", "crudo", "prado"] },
+            { correct: "pato", options: ["pato", "clase", "grito", "fruta"] }
+        ];
 
-function shuffle(array) {
-    return [...array].sort(() => Math.random() - 0.5);
-}
+        const greetingQuestions = [
+            { spanish: "Hola.", answer: "こんにちは。（１日中）" },
+            { spanish: "Buenos días.", answer: "おはようございます" },
+            { spanish: "Buenas tardes.", answer: "こんにちは（昼食後）" },
+            { spanish: "Buenas noches.", answer: "こんばんは" },
+            { spanish: "Hasta luego.", answer: "また後で" },
+            { spanish: "Adiós.", answer: "さようなら" },
+            { spanish: "¿Qué tal?", answer: "元気？" },
+            { spanish: "Gracias.", answer: "ありがとう" },
+            { spanish: "De nada.", answer: "どういたしまして" },
+            { spanish: "Lo siento.", answer: "申し訳ありません" },
+            { spanish: "Sí.", answer: "はい" },
+            { spanish: "No.", answer: "いいえ" },
+            { spanish: "Encantado.", answer: "初めまして（男性）" },
+            { spanish: "Encantada.", answer: "初めまして（女性）" },
+            { spanish: "Mucho gusto.", answer: "初めまして（男性または女性）" }
+        ];
 
-function chooseAnswer(id, value, btn) {
-    selectedAnswers[id] = value;
-    document.querySelectorAll(`[data-id='${id}']`)
-        .forEach(b => b.classList.remove("selected"));
-    btn.classList.add("selected");
-}
+        let currentQuiz = [];
+        let selectedAnswers = {};
 
-function toggleChoices(id) {
-    const div = document.getElementById(id);
-    div.style.display = div.style.display === "none" ? "block" : "none";
-}
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
 
-function generateQuiz() {
-    const form = document.getElementById("quizForm");
-    const result = document.getElementById("result");
-    form.innerHTML = "";
-    result.innerHTML = "";
-    currentQuiz = [];
-    selectedAnswers = {};
+        function normalizeText(text) {
+            return String(text ?? "")
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[\s\p{P}\p{S}]+/gu, "");
+        }
 
-    /* ---------- 問題1 ---------- */
-    form.innerHTML += "<h3>1. アルファベットの読み方を答えてください。（5問）</h3>";
-    shuffle(alphabetQuestions).slice(0,5).forEach((q,i)=>{
-        currentQuiz.push({type:"text",answer:q.answer});
-        form.innerHTML += `
-            <div class="question">
-                (${i+1}) ${q.letter}
-                <input type="text" id="q${currentQuiz.length-1}">
-            </div>`;
-    });
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
 
-    /* ---------- 問題2(1) ---------- */
-    form.innerHTML += "<h3>2.(1) 二重母音・三重母音を含まない単語を選びなさい。</h3>";
-    const dip = shuffle(noDiphthongQuestions)[0];
-    currentQuiz.push({type:"choice",answer:dip.correct});
-    form.innerHTML += `<div class="question">`;
-    dip.options.forEach(opt=>{
-        form.innerHTML += `
-            <button type="button" class="choice-btn"
-                data-id="q${currentQuiz.length-1}"
-                onclick="chooseAnswer('q${currentQuiz.length-1}','${opt}',this)">
-                ${opt}
-            </button>`;
-    });
-    form.innerHTML += `</div>`;
+        function sampleFour(correct, pool) {
+            const wrongs = shuffle(
+                [...new Set(pool.filter(x => normalizeText(x) !== normalizeText(correct)))]
+            ).slice(0, 3);
+            return shuffle([correct, ...wrongs]);
+        }
 
-    /* ---------- 問題2(2) ---------- */
-    form.innerHTML += "<h3>2.(2) 二重子音を含まない単語を選びなさい。</h3>";
-    const clu = shuffle(noClusterQuestions)[0];
-    currentQuiz.push({type:"choice",answer:clu.correct});
-    form.innerHTML += `<div class="question">`;
-    clu.options.forEach(opt=>{
-        form.innerHTML += `
-            <button type="button" class="choice-btn"
-                data-id="q${currentQuiz.length-1}"
-                onclick="chooseAnswer('q${currentQuiz.length-1}','${opt}',this)">
-                ${opt}
-            </button>`;
-    });
-    form.innerHTML += `</div>`;
-
-    /* ---------- 問題3 ---------- */
-    form.innerHTML += "<h3>3. 次のスペイン語の挨拶表現を和訳してください。（3問）</h3>";
-    shuffle(greetingQuestions).slice(0,3).forEach((q,i)=>{
-        const options = shuffle(greetingQuestions.map(g=>g.answer))
-                        .filter(a=>a!==q.answer)
-                        .slice(0,3);
-        options.push(q.answer);
-        shuffle(options);
-
-        currentQuiz.push({type:"choice",answer:q.answer});
-        const id = `choices${i}`;
-        form.innerHTML += `
-            <div class="question">
-                (${i+1}) ${q.spanish}<br>
-                <button type="button" onclick="toggleChoices('${id}')">
-                    選択肢を表示
-                </button>
-                <div id="${id}" style="display:none;">
-                    ${options.map(opt=>`
-                        <button type="button" class="choice-btn"
-                            data-id="q${currentQuiz.length-1}"
-                            onclick="chooseAnswer('q${currentQuiz.length-1}','${opt}',this)">
-                            ${opt}
+        function choiceButtonsHtml(qid, options) {
+            return `
+                <div class="choice-group" data-group="${qid}">
+                    ${options.map(opt => `
+                        <button type="button" class="choice-btn" onclick="chooseAnswer('${qid}', ${JSON.stringify(opt)}, this)">
+                            ${escapeHtml(opt)}
                         </button>
                     `).join("")}
                 </div>
-            </div>`;
-    });
-}
-
-function gradeQuiz() {
-    let score = 0;
-    let feedback = "<h3>採点結果</h3>";
-
-    currentQuiz.forEach((q,i)=>{
-        let userAnswer;
-        if(q.type==="text"){
-            userAnswer=document.getElementById(`q${i}`).value.trim().toLowerCase();
-        }else{
-            userAnswer=(selectedAnswers[`q${i}`]||"").toLowerCase();
+            `;
         }
-        const correct=q.answer.toLowerCase();
-        const ok=userAnswer===correct;
-        if(ok) score++;
 
-        feedback+=`<p class="${ok?"correct":"incorrect"}">
-            問題${i+1}: ${ok?"正解":`不正解（正答: ${q.answer}）`}
-        </p>`;
-    });
+        function chooseAnswer(qid, value, button) {
+            selectedAnswers[qid] = value;
+            const group = document.querySelectorAll(`[data-group="${qid}"] .choice-btn`);
+            group.forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+        }
 
-    feedback+=`<p>得点: ${score} / ${currentQuiz.length}</p>`;
-    document.getElementById("result").innerHTML=feedback;
-}
-</script>
+        function toggleChoices(id) {
+            const wrap = document.getElementById(id);
+            const btn = document.getElementById(`reveal_${id}`);
+            const hidden = wrap.style.display === "none" || wrap.style.display === "";
+            wrap.style.display = hidden ? "block" : "none";
+            btn.textContent = hidden ? "選択肢を隠す" : "選択肢を表示";
+        }
+
+        function generateQuiz() {
+            const form = document.getElementById("quizForm");
+            const result = document.getElementById("result");
+            form.innerHTML = "";
+            result.innerHTML = "";
+            currentQuiz = [];
+            selectedAnswers = {};
+
+            let textId = 0;
+            let choiceId = 0;
+
+            form.innerHTML += `
+                <div class="section">
+                    <h3>1. アルファベットの読み方を答えてください。（5問）</h3>
+                </div>
+            `;
+
+            shuffle(alphabetQuestions).slice(0, 5).forEach((q, i) => {
+                const id = `t${textId++}`;
+                currentQuiz.push({
+                    kind: "text",
+                    id,
+                    answer: q.answer,
+                    label: `1-${i + 1}`
+                });
+
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${escapeHtml(q.letter)}
+                        <input type="text" id="${id}" placeholder="読み方">
+                    </div>
+                `;
+            });
+
+            form.innerHTML += `
+                <div class="section">
+                    <h3>2.(1) 次の中から二重母音または三重母音を含まない単語を選びなさい。（1問）</h3>
+                </div>
+            `;
+
+            const q21 = shuffle(noDiphthongQuestions)[0];
+            const q21Id = `c${choiceId++}`;
+            currentQuiz.push({
+                kind: "choice",
+                id: q21Id,
+                answer: q21.correct,
+                label: "2(1)"
+            });
+
+            form.innerHTML += `
+                <div class="question">
+                    次の中から1つ選びなさい。
+                    ${choiceButtonsHtml(q21Id, shuffle(q21.options))}
+                </div>
+            `;
+
+            form.innerHTML += `
+                <div class="section">
+                    <h3>2.(2) 次の中から二重子音（br, pl など）を含まない単語を選びなさい。（1問）</h3>
+                </div>
+            `;
+
+            const q22 = shuffle(noClusterQuestions)[0];
+            const q22Id = `c${choiceId++}`;
+            currentQuiz.push({
+                kind: "choice",
+                id: q22Id,
+                answer: q22.correct,
+                label: "2(2)"
+            });
+
+            form.innerHTML += `
+                <div class="question">
+                    次の中から1つ選びなさい。
+                    ${choiceButtonsHtml(q22Id, shuffle(q22.options))}
+                </div>
+            `;
+
+            form.innerHTML += `
+                <div class="section">
+                    <h3>3. 次のスペイン語の挨拶表現を和訳してください。（3問）</h3>
+                </div>
+            `;
+
+            const greetingPool = greetingQuestions.map(g => g.answer);
+            shuffle(greetingQuestions).slice(0, 3).forEach((q, i) => {
+                const id = `c${choiceId++}`;
+                const options = sampleFour(q.answer, greetingPool);
+                currentQuiz.push({
+                    kind: "choice",
+                    id,
+                    answer: q.answer,
+                    label: `3-${i + 1}`
+                });
+
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${escapeHtml(q.spanish)}<br>
+                        <button type="button" class="reveal-btn" id="reveal_${id}" onclick="toggleChoices('${id}')">選択肢を表示</button>
+                        <div id="${id}" style="display:none;">
+                            ${choiceButtonsHtml(id, options)}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function gradeQuiz() {
+            let score = 0;
+            let feedback = "<h3>採点結果</h3>";
+
+            currentQuiz.forEach((q, i) => {
+                let userAnswer = "";
+
+                if (q.kind === "text") {
+                    const input = document.getElementById(q.id);
+                    userAnswer = input ? input.value : "";
+                } else {
+                    userAnswer = selectedAnswers[q.id] || "";
+                }
+
+                const ok = normalizeText(userAnswer) === normalizeText(q.answer);
+                if (ok) score++;
+
+                const shownUser = userAnswer.trim() === "" ? "未入力／未選択" : userAnswer.trim();
+
+                feedback += `
+                    <p class="${ok ? "correct" : "incorrect"}">
+                        ${escapeHtml(q.label)}:
+                        ${ok ? "正解" : `不正解（あなた: ${escapeHtml(shownUser)} / 正答: ${escapeHtml(q.answer)}）`}
+                    </p>
+                `;
+            });
+
+            feedback += `<p>得点: ${score} / ${currentQuiz.length}</p>`;
+            document.getElementById("result").innerHTML = feedback;
+        }
+    </script>
 </body>
 </html>
