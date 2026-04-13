@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>スペイン語 1-1</title>
+    <title>スペイン語 1-2</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,20 +12,64 @@
         h1 {
             text-align: center;
         }
+        h3 {
+            margin-top: 28px;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 26px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 10px 5px 10px 0;
+            padding: 10px 14px;
+            font-size: 15px;
+            margin: 6px 6px 6px 0;
             cursor: pointer;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        button:hover {
+            background: #f0f0f0;
         }
         input {
             margin-left: 10px;
-            padding: 5px;
+            padding: 6px 8px;
             font-size: 16px;
-            width: 120px;
+            width: 170px;
+            border: 1px solid #bbb;
+            border-radius: 6px;
         }
         .question {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background: #fff;
+        }
+        .choice-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .choice-btn {
+            min-width: 90px;
+            padding: 8px 12px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+            background: #fff;
+        }
+        .choice-btn.selected {
+            background: #dfefff;
+            border-color: #4a86e8;
+            font-weight: bold;
+        }
+        .reveal-btn {
+            margin-top: 8px;
+            background: #f7f7f7;
         }
         .correct {
             color: green;
@@ -38,338 +82,117 @@
             font-weight: bold;
             font-size: 18px;
         }
-        .translation {
-            color: #555;
-            font-size: 0.9em;
-            display: none;
-            margin-left: 10px;
+        .small-note {
+            color: #666;
+            font-size: 0.92em;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
-    <h1>スペイン語 1-1 演習</h1>
+    <h1>スペイン語 1-2 演習</h1>
 
-    <button onclick="generateQuiz()">問題を生成する</button>
-    <button onclick="toggleTranslations()" id="toggleBtn">和訳を表示</button>
+    <button type="button" onclick="generateQuiz()">問題を生成する</button>
+    <button type="button" onclick="gradeQuiz()">正答を判定する</button>
 
-    <form id="quizForm"></form>
-
-    <button onclick="gradeQuiz()">正答を判定する</button>
+    <div id="quizForm"></div>
 
     <div id="result"></div>
 
     <p><a href="../spanish.html">← 目次へ戻る</a></p>
 
     <script>
-        let showTranslations = false;
-
-        function toggleTranslations() {
-            showTranslations = !showTranslations;
-            const elements = document.querySelectorAll(".translation");
-            elements.forEach(el => {
-                el.style.display = showTranslations ? "inline" : "none";
-            });
-            document.getElementById("toggleBtn").textContent =
-                showTranslations ? "和訳を非表示" : "和訳を表示";
-        }
-
-        // 第3問用：スペイン語→日本語の対応表
-        const translations = {
-            "(　) soy estudiante.": "私は学生です。",
-            "(　) soy japonés.": "私は日本人です。",
-            "(　) estoy en casa.": "私は家にいます。",
-            "(　) eres estudiante.": "君は学生です。",
-            "(　) estás en la escuela.": "君は学校にいます。",
-            "(　) eres mi amigo.": "君は私の友達です。",
-            "(　) es ingeniero.": "彼はエンジニアです。",
-            "(　) está en Madrid.": "彼はマドリードにいます。",
-            "(　) es profesor.": "彼は教師です。",
-            "(　) es estudiante.": "彼女は学生です。",
-            "(　) está en casa.": "彼女は家にいます。",
-            "(　) es mi amiga.": "彼女は私の友達です。",
-            "(　) somos amigos.": "私たちは友達です。",
-            "(　) estamos en México.": "私たちはメキシコにいます。",
-            "(　) somos estudiantes.": "私たちは学生です。",
-            "(　) somos amigas.": "私たちは女友達です。",
-            "(　) estamos en España.": "私たちはスペインにいます。",
-            "(　) somos alumnas.": "私たちは女子学生です。",
-            "(　) sois estudiantes.": "君たちは学生です。",
-            "(　) estáis en Madrid.": "君たちはマドリードにいます。",
-            "(　) sois amigos.": "君たちは友達です。",
-            "(　) estáis en casa.": "君たちは家にいます。",
-            "(　) sois amigas.": "君たちは女友達です。",
-            "(　) son estudiantes.": "彼ら／彼女らは学生です。",
-            "(　) están en México.": "彼らはメキシコにいます。",
-            "(　) son amigos.": "彼らは友達です。",
-            "(　) están en Madrid.": "彼女らはマドリードにいます。",
-            "(　) son amigas.": "彼女らは女友達です。",
-            "(　) son profesores.": "あなた方は教師です。",
-            "(　) están en España.": "あなた方はスペインにいます。",
-            "Yo (　) estudiante.": "私は学生です。",
-            "Yo (　) japonés.": "私は日本人です。",
-            "Yo (　) profesor.": "私は教師です。",
-            "Tú (　) estudiante.": "君は学生です。",
-            "Tú (　) mi amigo.": "君は私の友達です。",
-            "Tú (　) japonés.": "君は日本人です。",
-            "Él (　) ingeniero.": "彼はエンジニアです。",
-            "Ella (　) estudiante.": "彼女は学生です。",
-            "Usted (　) profesor.": "あなたは教師です。",
-            "Nosotros (　) estudiantes.": "私たちは学生です。",
-            "Nosotros (　) amigos.": "私たちは友達です。",
-            "Nosotros (　) japoneses.": "私たちは日本人です。",
-            "Vosotros (　) estudiantes.": "君たちは学生です。",
-            "Vosotros (　) amigos.": "君たちは友達です。",
-            "Vosotros (　) japoneses.": "君たちは日本人です。",
-            "Ellos (　) estudiantes.": "彼らは学生です。",
-            "Ellos (　) amigos.": "彼らは友達です。",
-            "Ellos (　) japoneses.": "彼らは日本人です。",
-            "Yo (　) en casa.": "私は家にいます。",
-            "Yo (　) en Japón.": "私は日本にいます。",
-            "Yo (　) en la escuela.": "私は学校にいます。",
-            "Tú (　) en casa.": "君は家にいます。",
-            "Tú (　) en Madrid.": "君はマドリードにいます。",
-            "Tú (　) en la escuela.": "君は学校にいます。",
-            "Él (　) en Madrid.": "彼はマドリードにいます。",
-            "Ella (　) en casa.": "彼女は家にいます。",
-            "Usted (　) en Japón.": "あなたは日本にいます。",
-            "Nosotros (　) en México.": "私たちはメキシコにいます。",
-            "Nosotros (　) en la escuela.": "私たちは学校にいます。",
-            "Nosotros (　) en casa.": "私たちは家にいます。",
-            "Vosotros (　) en Madrid.": "君たちはマドリードにいます。",
-            "Vosotros (　) en casa.": "君たちは家にいます。",
-            "Vosotros (　) en la escuela.": "君たちは学校にいます。",
-            "Ellos (　) en México.": "彼らはメキシコにいます。",
-            "Ellos (　) en Madrid.": "彼らはマドリードにいます。",
-            "Ellos (　) en casa.": "彼らは家にいます。",
-            "Somos (　) México.": "私たちはメキシコ出身です。",
-            "El libro es (　) Ana.": "その本はアナのものです。",
-            "La mesa es (　) madera.": "その机は木製です。"
-        };
-
-        // 既存の配列（変更なし）
-        const definiteArticles = [
-            // 男性単数
-            { noun: "libro", answer: "el" },
-            { noun: "vino", answer: "el" },
-            { noun: "bolígrafo", answer: "el" },
-            { noun: "cuaderno", answer: "el" },
-            { noun: "hospital", answer: "el" },
-            { noun: "mapa", answer: "el" },
-            { noun: "día", answer: "el" },
-            { noun: "problema", answer: "el" },
-        
-            // 女性単数
-            { noun: "mesa", answer: "la" },
-            { noun: "plaza", answer: "la" },
-            { noun: "ciudad", answer: "la" },
-            { noun: "estación", answer: "la" },
-            { noun: "televisión", answer: "la" },
-            { noun: "flor", answer: "la" },
-            { noun: "calle", answer: "la" },
-            { noun: "mano", answer: "la" },
-            { noun: "foto", answer: "la" },
-            { noun: "moto", answer: "la" },
-            { noun: "pluma", answer: "la" },
-        
-            // 男性複数
-            { noun: "libros", answer: "los" },
-            { noun: "vinos", answer: "los" },
-            { noun: "bolígrafos", answer: "los" },
-            { noun: "cuadernos", answer: "los" },
-            { noun: "hospitales", answer: "los" },
-            { noun: "mapas", answer: "los" },
-            { noun: "días", answer: "los" },
-            { noun: "problemas", answer: "los" },
-        
-            // 女性複数
-            { noun: "mesas", answer: "las" },
-            { noun: "plazas", answer: "las" },
-            { noun: "ciudades", answer: "las" },
-            { noun: "estaciones", answer: "las" },
-            { noun: "televisiones", answer: "las" },
-            { noun: "flores", answer: "las" },
-            { noun: "calles", answer: "las" },
-            { noun: "manos", answer: "las" },
-            { noun: "fotos", answer: "las" },
-            { noun: "motos", answer: "las" },
-            { noun: "plumas", answer: "las" },
-        
-            // 生物名詞
-            { noun: "hombre", answer: "el" },
-            { noun: "hombres", answer: "los" },
-            { noun: "mujer", answer: "la" },
-            { noun: "mujeres", answer: "las" },
-        
-            // 超初歩単語
-            { noun: "amigo", answer: "el" },
-            { noun: "amigos", answer: "los" },
-            { noun: "amiga", answer: "la" },
-            { noun: "amigas", answer: "las" },
-            { noun: "casa", answer: "la" },
-            { noun: "casas", answer: "las" },
-            { noun: "escuela", answer: "la" },
-            { noun: "escuelas", answer: "las" }
+        const alphabetQuestions = [
+            { display: "A a", answer: "a" },
+            { display: "B be", answer: "be" },
+            { display: "C ce", answer: "ce" },
+            { display: "D de", answer: "de" },
+            { display: "E e", answer: "e" },
+            { display: "F efe", answer: "efe" },
+            { display: "G ge", answer: "ge" },
+            { display: "H hache", answer: "hache" },
+            { display: "I i", answer: "i" },
+            { display: "J jota", answer: "jota" },
+            { display: "K ka", answer: "ka" },
+            { display: "L ele", answer: "ele" },
+            { display: "M eme", answer: "eme" },
+            { display: "N ene", answer: "ene" },
+            { display: "Ñ eñe", answer: "eñe" },
+            { display: "O o", answer: "o" },
+            { display: "P pe", answer: "pe" },
+            { display: "Q cu", answer: "cu" },
+            { display: "R ere", answer: "ere" },
+            { display: "S ese", answer: "ese" },
+            { display: "T te", answer: "te" },
+            { display: "U u", answer: "u" },
+            { display: "V uve", answer: "uve" },
+            { display: "W uve doble", answer: "uve doble" },
+            { display: "X equis", answer: "equis" },
+            { display: "Y ye", answer: "ye" },
+            { display: "Z zeta", answer: "zeta" }
         ];
 
-        const indefiniteArticles = [
-            // 教科書掲載語
-            { noun: "libro", answer: "un" },
-            { noun: "vino", answer: "un" },
-            { noun: "bolígrafo", answer: "un" },
-            { noun: "patio", answer: "un" },
-            { noun: "hospital", answer: "un" },
-            { noun: "flor", answer: "una" },
-            { noun: "calle", answer: "una" },
-            { noun: "mesa", answer: "una" },
-            { noun: "plaza", answer: "una" },
-            { noun: "ciudad", answer: "una" },
-            { noun: "estación", answer: "una" },
-            { noun: "televisión", answer: "una" },
-            { noun: "foto", answer: "una" },
-            { noun: "mano", answer: "una" },
-            { noun: "moto", answer: "una" },
-            { noun: "día", answer: "un" },
-            { noun: "mapa", answer: "un" },
-            { noun: "problema", answer: "un" },
-            { noun: "cuaderno", answer: "un" },
-            { noun: "pluma", answer: "una" },
-        
-            // 生物名詞
-            { noun: "hombre", answer: "un" },
-            { noun: "padre", answer: "un" },
-            { noun: "chico", answer: "un" },
-            { noun: "toro", answer: "un" },
-            { noun: "mujer", answer: "una" },
-            { noun: "madre", answer: "una" },
-            { noun: "chica", answer: "una" },
-            { noun: "vaca", answer: "una" },
-        
-            // 超初歩単語5個
-            { noun: "amigo", answer: "un" },
-            { noun: "amiga", answer: "una" },
-            { noun: "casa", answer: "una" },
-            { noun: "escuela", answer: "una" },
-            { noun: "gato", answer: "un" }
+        const noDiphthongTemplates = [
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "casa" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "mesa" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "libro" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "perro" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "amigo" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "padre" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "carta" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "gato" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "vino" },
+            { prompt: "次の中から二重母音または三重母音を含まない単語を選びなさい。", correct: "silla" }
         ];
 
-        const fillInTheBlanks = [
-            // yo
-            { question: "(　) soy estudiante.", answer: "Yo" },
-            { question: "(　) soy japonés.", answer: "Yo" },
-            { question: "(　) estoy en casa.", answer: "Yo" },
-        
-            // tú
-            { question: "(　) eres estudiante.", answer: "Tú" },
-            { question: "(　) estás en la escuela.", answer: "Tú" },
-            { question: "(　) eres mi amigo.", answer: "Tú" },
-        
-            // él
-            { question: "(　) es ingeniero.", answer: "Él" },
-            { question: "(　) está en Madrid.", answer: "Él" },
-            { question: "(　) es profesor.", answer: "Él" },
-        
-            // ella
-            { question: "(　) es estudiante.", answer: "Ella" },
-            { question: "(　) está en casa.", answer: "Ella" },
-            { question: "(　) es mi amiga.", answer: "Ella" },
-        
-            // usted
-            { question: "(　) es profesor.", answer: "Usted" },
-            { question: "(　) está en Japón.", answer: "Usted" },
-            { question: "(　) es estudiante.", answer: "Usted" },
-        
-            // nosotros
-            { question: "(　) somos amigos.", answer: "Nosotros" },
-            { question: "(　) estamos en México.", answer: "Nosotros" },
-            { question: "(　) somos estudiantes.", answer: "Nosotros" },
-        
-            // nosotras
-            { question: "(　) somos amigas.", answer: "Nosotras" },
-            { question: "(　) estamos en España.", answer: "Nosotras" },
-            { question: "(　) somos alumnas.", answer: "Nosotras" },
-        
-            // vosotros
-            { question: "(　) sois estudiantes.", answer: "Vosotros" },
-            { question: "(　) estáis en Madrid.", answer: "Vosotros" },
-            { question: "(　) sois amigos.", answer: "Vosotros" },
-        
-            // vosotras
-            { question: "(　) sois estudiantes.", answer: "Vosotras" },
-            { question: "(　) estáis en casa.", answer: "Vosotras" },
-            { question: "(　) sois amigas.", answer: "Vosotras" },
-        
-            // ellos
-            { question: "(　) son estudiantes.", answer: "Ellos" },
-            { question: "(　) están en México.", answer: "Ellos" },
-            { question: "(　) son amigos.", answer: "Ellos" },
-        
-            // ellas
-            { question: "(　) son estudiantes.", answer: "Ellas" },
-            { question: "(　) están en Madrid.", answer: "Ellas" },
-            { question: "(　) son amigas.", answer: "Ellas" },
-        
-            // ustedes
-            { question: "(　) son profesores.", answer: "Ustedes" },
-            { question: "(　) están en España.", answer: "Ustedes" },
-            { question: "(　) son estudiantes.", answer: "Ustedes" },
-        
-            // ser（6形 × 各3問）
-            { question: "Yo (　) estudiante.", answer: "soy" },
-            { question: "Yo (　) japonés.", answer: "soy" },
-            { question: "Yo (　) profesor.", answer: "soy" },
-        
-            { question: "Tú (　) estudiante.", answer: "eres" },
-            { question: "Tú (　) mi amigo.", answer: "eres" },
-            { question: "Tú (　) japonés.", answer: "eres" },
-        
-            { question: "Él (　) ingeniero.", answer: "es" },
-            { question: "Ella (　) estudiante.", answer: "es" },
-            { question: "Usted (　) profesor.", answer: "es" },
-        
-            { question: "Nosotros (　) estudiantes.", answer: "somos" },
-            { question: "Nosotros (　) amigos.", answer: "somos" },
-            { question: "Nosotros (　) japoneses.", answer: "somos" },
-        
-            { question: "Vosotros (　) estudiantes.", answer: "sois" },
-            { question: "Vosotros (　) amigos.", answer: "sois" },
-            { question: "Vosotros (　) japoneses.", answer: "sois" },
-        
-            { question: "Ellos (　) estudiantes.", answer: "son" },
-            { question: "Ellos (　) amigos.", answer: "son" },
-            { question: "Ellos (　) japoneses.", answer: "son" },
-        
-            // estar（6形 × 各3問）
-            { question: "Yo (　) en casa.", answer: "estoy" },
-            { question: "Yo (　) en Japón.", answer: "estoy" },
-            { question: "Yo (　) en la escuela.", answer: "estoy" },
-        
-            { question: "Tú (　) en casa.", answer: "estás" },
-            { question: "Tú (　) en Madrid.", answer: "estás" },
-            { question: "Tú (　) en la escuela.", answer: "estás" },
-        
-            { question: "Él (　) en Madrid.", answer: "está" },
-            { question: "Ella (　) en casa.", answer: "está" },
-            { question: "Usted (　) en Japón.", answer: "está" },
-        
-            { question: "Nosotros (　) en México.", answer: "estamos" },
-            { question: "Nosotros (　) en la escuela.", answer: "estamos" },
-            { question: "Nosotros (　) en casa.", answer: "estamos" },
-        
-            { question: "Vosotros (　) en Madrid.", answer: "estáis" },
-            { question: "Vosotros (　) en casa.", answer: "estáis" },
-            { question: "Vosotros (　) en la escuela.", answer: "estáis" },
-        
-            { question: "Ellos (　) en México.", answer: "están" },
-            { question: "Ellos (　) en Madrid.", answer: "están" },
-            { question: "Ellos (　) en casa.", answer: "están" },
-        
-            // 基本語彙
-            { question: "Somos (　) México.", answer: "de" },
-            { question: "El libro es (　) Ana.", answer: "de" },
-            { question: "La mesa es (　) madera.", answer: "de" },
+        const noDiphthongWrongPool = [
+            "aire", "tierra", "bueno", "cielo", "huevo",
+            "reina", "fuego", "buey", "uruguay", "ciudad",
+            "guay", "europa", "tiempo", "suelo", "paraguay",
+            "causa", "peine", "nueve", "deuda", "vuelve",
+            "cuatro", "nuevo", "viejo", "riega", "rueda"
+        ];
+
+        const noClusterTemplates = [
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "casa" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "mesa" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "amigo" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "perro" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "libro" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "familia" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "cocina" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "domingo" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "gato" },
+            { prompt: "次の中から二重子音を含まない単語を選びなさい。", correct: "piano" }
+        ];
+
+        const noClusterWrongPool = [
+            "playa", "tren", "blanco", "flor", "prado",
+            "clavo", "brasa", "fruta", "globo", "crudo",
+            "plato", "brazo", "grito", "flauta", "cráneo",
+            "brisa", "trono", "blusa", "prenda", "clase"
+        ];
+
+        const greetingQuestions = [
+            { spanish: "Hola.", answer: "こんにちは。（１日中）" },
+            { spanish: "Buenos dias.", answer: "おはようございます" },
+            { spanish: "Buenos tardes.", answer: "こんにちは（昼食後）" },
+            { spanish: "Buenos noches.", answer: "こんばんは" },
+            { spanish: "Hasta luego.", answer: "また後で" },
+            { spanish: "Adios.", answer: "さようなら" },
+            { spanish: "?Que tal?", answer: "元気？" },
+            { spanish: "Gracias.", answer: "ありがとう" },
+            { spanish: "De nada.", answer: "どういたしまして" },
+            { spanish: "Lo siento.", answer: "申し訳ありません" },
+            { spanish: "Si.", answer: "はい" },
+            { spanish: "No.", answer: "いいえ" },
+            { spanish: "Encantado.", answer: "初めまして（男性）" },
+            { spanish: "Encantada.", answer: "初めまして（女性）" },
+            { spanish: "Mucho gusto.", answer: "初めまして（男性または女性）" }
         ];
 
         let currentQuiz = [];
+        let selectedAnswers = {};
 
         function shuffle(array) {
             const arr = [...array];
@@ -380,72 +203,201 @@
             return arr;
         }
 
+        function normalizeText(text) {
+            return String(text ?? "")
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function sampleFour(correct, wrongPool) {
+            const pool = [...new Set(wrongPool.filter(x => normalizeText(x) !== normalizeText(correct)))];
+            const wrongs = shuffle(pool).slice(0, 3);
+            return shuffle([correct, ...wrongs]);
+        }
+
+        function choiceButtonsHtml(qid, options) {
+            return `
+                <div class="choice-group" data-group="${qid}">
+                    ${options.map(opt => `
+                        <button type="button" class="choice-btn" onclick="chooseAnswer('${qid}', ${JSON.stringify(opt)}, this)">
+                            ${escapeHtml(opt)}
+                        </button>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function chooseAnswer(qid, value, button) {
+            selectedAnswers[qid] = value;
+
+            const group = document.querySelectorAll(`[data-group="${qid}"] .choice-btn`);
+            group.forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+        }
+
+        function toggleChoices(qid) {
+            const wrap = document.getElementById(`choices_${qid}`);
+            const btn = document.getElementById(`reveal_${qid}`);
+            const hidden = wrap.style.display === "none" || wrap.style.display === "";
+
+            wrap.style.display = hidden ? "block" : "none";
+            btn.textContent = hidden ? "選択肢を隠す" : "選択肢を表示";
+        }
+
         function generateQuiz() {
             const form = document.getElementById("quizForm");
             const result = document.getElementById("result");
             form.innerHTML = "";
             result.innerHTML = "";
             currentQuiz = [];
+            selectedAnswers = {};
 
-            // 第1問
-            const defQs = shuffle([...definiteArticles]).slice(0, 2);
-            form.innerHTML += "<h3>1. 以下の名詞に適切な定冠詞をつけてください。（1×2）</h3>";
-            defQs.forEach((q, i) => {
-                currentQuiz.push(q.answer.toLowerCase());
+            let textId = 0;
+            let choiceId = 0;
+
+            form.innerHTML += `
+                <div class="section">
+                    <h3>1. アルファベットの読み方を答えてください。（5問）</h3>
+                </div>
+            `;
+
+            const alphabetQs = shuffle(alphabetQuestions).slice(0, 5);
+            alphabetQs.forEach((q, i) => {
+                const id = `t${textId++}`;
+                currentQuiz.push({
+                    kind: "text",
+                    id,
+                    answer: q.answer,
+                    label: `1-${i + 1}`
+                });
+
                 form.innerHTML += `
                     <div class="question">
-                        (${i + 1}) ${q.noun}
-                        <input type="text" id="q${currentQuiz.length - 1}">
-                    </div>`;
+                        (${i + 1}) ${escapeHtml(q.display)}
+                        <input type="text" id="${id}" placeholder="読み方">
+                    </div>
+                `;
             });
 
-            // 第2問
-            const indefQs = shuffle([...indefiniteArticles]).slice(0, 2);
-            form.innerHTML += "<h3>2. 以下の名詞に適切な不定冠詞をつけてください。（1×2）</h3>";
-            indefQs.forEach((q, i) => {
-                currentQuiz.push(q.answer.toLowerCase());
+            form.innerHTML += `
+                <div class="section">
+                    <h3>2.(1) 次の中から二重母音または三重母音を含まない単語を選びなさい。（10問）</h3>
+                </div>
+            `;
+
+            const noDiphthongQs = shuffle(noDiphthongTemplates);
+            noDiphthongQs.forEach((q, i) => {
+                const id = `c${choiceId++}`;
+                const options = sampleFour(q.correct, noDiphthongWrongPool);
+                currentQuiz.push({
+                    kind: "choice",
+                    id,
+                    answer: q.correct,
+                    label: `2(1)-${i + 1}`
+                });
+
                 form.innerHTML += `
                     <div class="question">
-                        (${i + 1}) ${q.noun}
-                        <input type="text" id="q${currentQuiz.length - 1}">
-                    </div>`;
+                        (${i + 1}) ${escapeHtml(q.prompt)}
+                        ${choiceButtonsHtml(id, options)}
+                    </div>
+                `;
             });
 
-            // 第3問
-            const fillQs = shuffle([...fillInTheBlanks]).slice(0, 6);
-            form.innerHTML += "<h3>3. 以下のかっこ内に、和訳に合うように適語を入れてください。（1×6）</h3>";
-            fillQs.forEach((q, i) => {
-                currentQuiz.push(q.answer.toLowerCase());
-                const jp = translations[q.question] || "";
+            form.innerHTML += `
+                <div class="section">
+                    <h3>2.(2) 次の中から二重子音を含まない単語を選びなさい。（10問）</h3>
+                </div>
+            `;
+
+            const noClusterQs = shuffle(noClusterTemplates);
+            noClusterQs.forEach((q, i) => {
+                const id = `c${choiceId++}`;
+                const options = sampleFour(q.correct, noClusterWrongPool);
+                currentQuiz.push({
+                    kind: "choice",
+                    id,
+                    answer: q.correct,
+                    label: `2(2)-${i + 1}`
+                });
+
                 form.innerHTML += `
                     <div class="question">
-                        (${i + 1}) ${q.question}
-                        <span class="translation">（和訳：${jp}）</span>
-                        <input type="text" id="q${currentQuiz.length - 1}">
-                    </div>`;
+                        (${i + 1}) ${escapeHtml(q.prompt)}
+                        ${choiceButtonsHtml(id, options)}
+                    </div>
+                `;
             });
 
-            if (showTranslations) toggleTranslations();
+            form.innerHTML += `
+                <div class="section">
+                    <h3>3. 次のスペイン語の挨拶表現を和訳してください。（3問）</h3>
+                </div>
+            `;
+
+            const greetingQs = shuffle(greetingQuestions).slice(0, 3);
+            greetingQs.forEach((q, i) => {
+                const id = `c${choiceId++}`;
+                const options = sampleFour(
+                    q.answer,
+                    greetingQuestions.map(item => item.answer)
+                );
+
+                currentQuiz.push({
+                    kind: "choice",
+                    id,
+                    answer: q.answer,
+                    label: `3-${i + 1}`
+                });
+
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${escapeHtml(q.spanish)}<br>
+                        <button type="button" class="reveal-btn" id="reveal_${id}" onclick="toggleChoices('${id}')">選択肢を表示</button>
+                        <div id="choices_${id}" style="display:none;">
+                            ${choiceButtonsHtml(id, options)}
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         function gradeQuiz() {
             let score = 0;
             let feedback = "<h3>採点結果</h3>";
 
-            currentQuiz.forEach((answer, i) => {
-                const inputElement = document.getElementById(`q${i}`);
-                if (!inputElement) return;
+            currentQuiz.forEach((q) => {
+                let userValue = "";
 
-                const userInput = inputElement.value.trim().toLowerCase();
-                const correct = userInput === answer;
+                if (q.kind === "text") {
+                    const input = document.getElementById(q.id);
+                    userValue = input ? input.value : "";
+                } else {
+                    userValue = selectedAnswers[q.id] || "";
+                }
 
+                const correct = normalizeText(userValue) === normalizeText(q.answer);
                 if (correct) score++;
+
+                const shownUser = userValue.trim() === "" ? "未入力／未選択" : userValue.trim();
 
                 feedback += `
                     <p class="${correct ? "correct" : "incorrect"}">
-                        問題${i + 1}:
-                        ${correct ? "正解" : `不正解（正答: ${answer}）`}
-                    </p>`;
+                        ${escapeHtml(q.label)}:
+                        ${correct ? "正解" : `不正解（あなた: ${escapeHtml(shownUser)} / 正答: ${escapeHtml(q.answer)}）`}
+                    </p>
+                `;
             });
 
             feedback += `<p>得点: ${score} / ${currentQuiz.length}</p>`;
