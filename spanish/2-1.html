@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スペイン語 1-1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.8;
+        }
+        h1 {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+            cursor: pointer;
+        }
+        input {
+            margin-left: 10px;
+            padding: 5px;
+            font-size: 16px;
+            width: 120px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .translation {
+            color: #555;
+            font-size: 0.9em;
+            display: none;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>スペイン語 1-1 演習</h1>
+
+    <button onclick="generateQuiz()">問題を生成する</button>
+    <button onclick="toggleTranslations()" id="toggleBtn">和訳を表示</button>
+
+    <form id="quizForm"></form>
+
+    <button onclick="gradeQuiz()">正答を判定する</button>
+
+    <div id="result"></div>
+
+    <p><a href="../spanish.html">← 目次へ戻る</a></p>
+
+    <script>
+        let showTranslations = false;
+
+        function toggleTranslations() {
+            showTranslations = !showTranslations;
+            const elements = document.querySelectorAll(".translation");
+            elements.forEach(el => {
+                el.style.display = showTranslations ? "inline" : "none";
+            });
+            document.getElementById("toggleBtn").textContent =
+                showTranslations ? "和訳を非表示" : "和訳を表示";
+        }
+
+        // 第3問用：スペイン語→日本語の対応表
+        const translations = {
+            "(　) soy estudiante.": "私は学生です。",
+            "(　) soy japonés.": "私は日本人です。",
+            "(　) estoy en casa.": "私は家にいます。",
+            "(　) eres estudiante.": "君は学生です。",
+            "(　) estás en la escuela.": "君は学校にいます。",
+            "(　) eres mi amigo.": "君は私の友達です。",
+            "(　) es ingeniero.": "彼はエンジニアです。",
+            "(　) está en Madrid.": "彼はマドリードにいます。",
+            "(　) es profesor.": "彼は教師です。",
+            "(　) es estudiante.": "彼女は学生です。",
+            "(　) está en casa.": "彼女は家にいます。",
+            "(　) es mi amiga.": "彼女は私の友達です。",
+            "(　) somos amigos.": "私たちは友達です。",
+            "(　) estamos en México.": "私たちはメキシコにいます。",
+            "(　) somos estudiantes.": "私たちは学生です。",
+            "(　) somos amigas.": "私たちは女友達です。",
+            "(　) estamos en España.": "私たちはスペインにいます。",
+            "(　) somos alumnas.": "私たちは女子学生です。",
+            "(　) sois estudiantes.": "君たちは学生です。",
+            "(　) estáis en Madrid.": "君たちはマドリードにいます。",
+            "(　) sois amigos.": "君たちは友達です。",
+            "(　) estáis en casa.": "君たちは家にいます。",
+            "(　) sois amigas.": "君たちは女友達です。",
+            "(　) son estudiantes.": "彼ら／彼女らは学生です。",
+            "(　) están en México.": "彼らはメキシコにいます。",
+            "(　) son amigos.": "彼らは友達です。",
+            "(　) están en Madrid.": "彼女らはマドリードにいます。",
+            "(　) son amigas.": "彼女らは女友達です。",
+            "(　) son profesores.": "あなた方は教師です。",
+            "(　) están en España.": "あなた方はスペインにいます。",
+            "Yo (　) estudiante.": "私は学生です。",
+            "Yo (　) japonés.": "私は日本人です。",
+            "Yo (　) profesor.": "私は教師です。",
+            "Tú (　) estudiante.": "君は学生です。",
+            "Tú (　) mi amigo.": "君は私の友達です。",
+            "Tú (　) japonés.": "君は日本人です。",
+            "Él (　) ingeniero.": "彼はエンジニアです。",
+            "Ella (　) estudiante.": "彼女は学生です。",
+            "Usted (　) profesor.": "あなたは教師です。",
+            "Nosotros (　) estudiantes.": "私たちは学生です。",
+            "Nosotros (　) amigos.": "私たちは友達です。",
+            "Nosotros (　) japoneses.": "私たちは日本人です。",
+            "Vosotros (　) estudiantes.": "君たちは学生です。",
+            "Vosotros (　) amigos.": "君たちは友達です。",
+            "Vosotros (　) japoneses.": "君たちは日本人です。",
+            "Ellos (　) estudiantes.": "彼らは学生です。",
+            "Ellos (　) amigos.": "彼らは友達です。",
+            "Ellos (　) japoneses.": "彼らは日本人です。",
+            "Yo (　) en casa.": "私は家にいます。",
+            "Yo (　) en Japón.": "私は日本にいます。",
+            "Yo (　) en la escuela.": "私は学校にいます。",
+            "Tú (　) en casa.": "君は家にいます。",
+            "Tú (　) en Madrid.": "君はマドリードにいます。",
+            "Tú (　) en la escuela.": "君は学校にいます。",
+            "Él (　) en Madrid.": "彼はマドリードにいます。",
+            "Ella (　) en casa.": "彼女は家にいます。",
+            "Usted (　) en Japón.": "あなたは日本にいます。",
+            "Nosotros (　) en México.": "私たちはメキシコにいます。",
+            "Nosotros (　) en la escuela.": "私たちは学校にいます。",
+            "Nosotros (　) en casa.": "私たちは家にいます。",
+            "Vosotros (　) en Madrid.": "君たちはマドリードにいます。",
+            "Vosotros (　) en casa.": "君たちは家にいます。",
+            "Vosotros (　) en la escuela.": "君たちは学校にいます。",
+            "Ellos (　) en México.": "彼らはメキシコにいます。",
+            "Ellos (　) en Madrid.": "彼らはマドリードにいます。",
+            "Ellos (　) en casa.": "彼らは家にいます。",
+            "Somos (　) México.": "私たちはメキシコ出身です。",
+            "El libro es (　) Ana.": "その本はアナのものです。",
+            "La mesa es (　) madera.": "その机は木製です。"
+        };
+
+        // 既存の配列（変更なし）
+        const definiteArticles = [
+            // 男性単数
+            { noun: "libro", answer: "el" },
+            { noun: "vino", answer: "el" },
+            { noun: "bolígrafo", answer: "el" },
+            { noun: "cuaderno", answer: "el" },
+            { noun: "hospital", answer: "el" },
+            { noun: "mapa", answer: "el" },
+            { noun: "día", answer: "el" },
+            { noun: "problema", answer: "el" },
+        
+            // 女性単数
+            { noun: "mesa", answer: "la" },
+            { noun: "plaza", answer: "la" },
+            { noun: "ciudad", answer: "la" },
+            { noun: "estación", answer: "la" },
+            { noun: "televisión", answer: "la" },
+            { noun: "flor", answer: "la" },
+            { noun: "calle", answer: "la" },
+            { noun: "mano", answer: "la" },
+            { noun: "foto", answer: "la" },
+            { noun: "moto", answer: "la" },
+            { noun: "pluma", answer: "la" },
+        
+            // 男性複数
+            { noun: "libros", answer: "los" },
+            { noun: "vinos", answer: "los" },
+            { noun: "bolígrafos", answer: "los" },
+            { noun: "cuadernos", answer: "los" },
+            { noun: "hospitales", answer: "los" },
+            { noun: "mapas", answer: "los" },
+            { noun: "días", answer: "los" },
+            { noun: "problemas", answer: "los" },
+        
+            // 女性複数
+            { noun: "mesas", answer: "las" },
+            { noun: "plazas", answer: "las" },
+            { noun: "ciudades", answer: "las" },
+            { noun: "estaciones", answer: "las" },
+            { noun: "televisiones", answer: "las" },
+            { noun: "flores", answer: "las" },
+            { noun: "calles", answer: "las" },
+            { noun: "manos", answer: "las" },
+            { noun: "fotos", answer: "las" },
+            { noun: "motos", answer: "las" },
+            { noun: "plumas", answer: "las" },
+        
+            // 生物名詞
+            { noun: "hombre", answer: "el" },
+            { noun: "hombres", answer: "los" },
+            { noun: "mujer", answer: "la" },
+            { noun: "mujeres", answer: "las" },
+        
+            // 超初歩単語
+            { noun: "amigo", answer: "el" },
+            { noun: "amigos", answer: "los" },
+            { noun: "amiga", answer: "la" },
+            { noun: "amigas", answer: "las" },
+            { noun: "casa", answer: "la" },
+            { noun: "casas", answer: "las" },
+            { noun: "escuela", answer: "la" },
+            { noun: "escuelas", answer: "las" }
+        ];
+
+        const indefiniteArticles = [
+            // 教科書掲載語
+            { noun: "libro", answer: "un" },
+            { noun: "vino", answer: "un" },
+            { noun: "bolígrafo", answer: "un" },
+            { noun: "patio", answer: "un" },
+            { noun: "hospital", answer: "un" },
+            { noun: "flor", answer: "una" },
+            { noun: "calle", answer: "una" },
+            { noun: "mesa", answer: "una" },
+            { noun: "plaza", answer: "una" },
+            { noun: "ciudad", answer: "una" },
+            { noun: "estación", answer: "una" },
+            { noun: "televisión", answer: "una" },
+            { noun: "foto", answer: "una" },
+            { noun: "mano", answer: "una" },
+            { noun: "moto", answer: "una" },
+            { noun: "día", answer: "un" },
+            { noun: "mapa", answer: "un" },
+            { noun: "problema", answer: "un" },
+            { noun: "cuaderno", answer: "un" },
+            { noun: "pluma", answer: "una" },
+        
+            // 生物名詞
+            { noun: "hombre", answer: "un" },
+            { noun: "padre", answer: "un" },
+            { noun: "chico", answer: "un" },
+            { noun: "toro", answer: "un" },
+            { noun: "mujer", answer: "una" },
+            { noun: "madre", answer: "una" },
+            { noun: "chica", answer: "una" },
+            { noun: "vaca", answer: "una" },
+        
+            // 超初歩単語5個
+            { noun: "amigo", answer: "un" },
+            { noun: "amiga", answer: "una" },
+            { noun: "casa", answer: "una" },
+            { noun: "escuela", answer: "una" },
+            { noun: "gato", answer: "un" }
+        ];
+
+        const fillInTheBlanks = [
+            // yo
+            { question: "(　) soy estudiante.", answer: "Yo" },
+            { question: "(　) soy japonés.", answer: "Yo" },
+            { question: "(　) estoy en casa.", answer: "Yo" },
+        
+            // tú
+            { question: "(　) eres estudiante.", answer: "Tú" },
+            { question: "(　) estás en la escuela.", answer: "Tú" },
+            { question: "(　) eres mi amigo.", answer: "Tú" },
+        
+            // él
+            { question: "(　) es ingeniero.", answer: "Él" },
+            { question: "(　) está en Madrid.", answer: "Él" },
+            { question: "(　) es profesor.", answer: "Él" },
+        
+            // ella
+            { question: "(　) es estudiante.", answer: "Ella" },
+            { question: "(　) está en casa.", answer: "Ella" },
+            { question: "(　) es mi amiga.", answer: "Ella" },
+        
+            // usted
+            { question: "(　) es profesor.", answer: "Usted" },
+            { question: "(　) está en Japón.", answer: "Usted" },
+            { question: "(　) es estudiante.", answer: "Usted" },
+        
+            // nosotros
+            { question: "(　) somos amigos.", answer: "Nosotros" },
+            { question: "(　) estamos en México.", answer: "Nosotros" },
+            { question: "(　) somos estudiantes.", answer: "Nosotros" },
+        
+            // nosotras
+            { question: "(　) somos amigas.", answer: "Nosotras" },
+            { question: "(　) estamos en España.", answer: "Nosotras" },
+            { question: "(　) somos alumnas.", answer: "Nosotras" },
+        
+            // vosotros
+            { question: "(　) sois estudiantes.", answer: "Vosotros" },
+            { question: "(　) estáis en Madrid.", answer: "Vosotros" },
+            { question: "(　) sois amigos.", answer: "Vosotros" },
+        
+            // vosotras
+            { question: "(　) sois estudiantes.", answer: "Vosotras" },
+            { question: "(　) estáis en casa.", answer: "Vosotras" },
+            { question: "(　) sois amigas.", answer: "Vosotras" },
+        
+            // ellos
+            { question: "(　) son estudiantes.", answer: "Ellos" },
+            { question: "(　) están en México.", answer: "Ellos" },
+            { question: "(　) son amigos.", answer: "Ellos" },
+        
+            // ellas
+            { question: "(　) son estudiantes.", answer: "Ellas" },
+            { question: "(　) están en Madrid.", answer: "Ellas" },
+            { question: "(　) son amigas.", answer: "Ellas" },
+        
+            // ustedes
+            { question: "(　) son profesores.", answer: "Ustedes" },
+            { question: "(　) están en España.", answer: "Ustedes" },
+            { question: "(　) son estudiantes.", answer: "Ustedes" },
+        
+            // ser（6形 × 各3問）
+            { question: "Yo (　) estudiante.", answer: "soy" },
+            { question: "Yo (　) japonés.", answer: "soy" },
+            { question: "Yo (　) profesor.", answer: "soy" },
+        
+            { question: "Tú (　) estudiante.", answer: "eres" },
+            { question: "Tú (　) mi amigo.", answer: "eres" },
+            { question: "Tú (　) japonés.", answer: "eres" },
+        
+            { question: "Él (　) ingeniero.", answer: "es" },
+            { question: "Ella (　) estudiante.", answer: "es" },
+            { question: "Usted (　) profesor.", answer: "es" },
+        
+            { question: "Nosotros (　) estudiantes.", answer: "somos" },
+            { question: "Nosotros (　) amigos.", answer: "somos" },
+            { question: "Nosotros (　) japoneses.", answer: "somos" },
+        
+            { question: "Vosotros (　) estudiantes.", answer: "sois" },
+            { question: "Vosotros (　) amigos.", answer: "sois" },
+            { question: "Vosotros (　) japoneses.", answer: "sois" },
+        
+            { question: "Ellos (　) estudiantes.", answer: "son" },
+            { question: "Ellos (　) amigos.", answer: "son" },
+            { question: "Ellos (　) japoneses.", answer: "son" },
+        
+            // estar（6形 × 各3問）
+            { question: "Yo (　) en casa.", answer: "estoy" },
+            { question: "Yo (　) en Japón.", answer: "estoy" },
+            { question: "Yo (　) en la escuela.", answer: "estoy" },
+        
+            { question: "Tú (　) en casa.", answer: "estás" },
+            { question: "Tú (　) en Madrid.", answer: "estás" },
+            { question: "Tú (　) en la escuela.", answer: "estás" },
+        
+            { question: "Él (　) en Madrid.", answer: "está" },
+            { question: "Ella (　) en casa.", answer: "está" },
+            { question: "Usted (　) en Japón.", answer: "está" },
+        
+            { question: "Nosotros (　) en México.", answer: "estamos" },
+            { question: "Nosotros (　) en la escuela.", answer: "estamos" },
+            { question: "Nosotros (　) en casa.", answer: "estamos" },
+        
+            { question: "Vosotros (　) en Madrid.", answer: "estáis" },
+            { question: "Vosotros (　) en casa.", answer: "estáis" },
+            { question: "Vosotros (　) en la escuela.", answer: "estáis" },
+        
+            { question: "Ellos (　) en México.", answer: "están" },
+            { question: "Ellos (　) en Madrid.", answer: "están" },
+            { question: "Ellos (　) en casa.", answer: "están" },
+        
+            // 基本語彙
+            { question: "Somos (　) México.", answer: "de" },
+            { question: "El libro es (　) Ana.", answer: "de" },
+            { question: "La mesa es (　) madera.", answer: "de" },
+        ];
+
+        let currentQuiz = [];
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function generateQuiz() {
+            const form = document.getElementById("quizForm");
+            const result = document.getElementById("result");
+            form.innerHTML = "";
+            result.innerHTML = "";
+            currentQuiz = [];
+
+            // 第1問
+            const defQs = shuffle([...definiteArticles]).slice(0, 2);
+            form.innerHTML += "<h3>1. 以下の名詞に適切な定冠詞をつけてください。（1×2）</h3>";
+            defQs.forEach((q, i) => {
+                currentQuiz.push(q.answer.toLowerCase());
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${q.noun}
+                        <input type="text" id="q${currentQuiz.length - 1}">
+                    </div>`;
+            });
+
+            // 第2問
+            const indefQs = shuffle([...indefiniteArticles]).slice(0, 2);
+            form.innerHTML += "<h3>2. 以下の名詞に適切な不定冠詞をつけてください。（1×2）</h3>";
+            indefQs.forEach((q, i) => {
+                currentQuiz.push(q.answer.toLowerCase());
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${q.noun}
+                        <input type="text" id="q${currentQuiz.length - 1}">
+                    </div>`;
+            });
+
+            // 第3問
+            const fillQs = shuffle([...fillInTheBlanks]).slice(0, 6);
+            form.innerHTML += "<h3>3. 以下のかっこ内に、和訳に合うように適語を入れてください。（1×6）</h3>";
+            fillQs.forEach((q, i) => {
+                currentQuiz.push(q.answer.toLowerCase());
+                const jp = translations[q.question] || "";
+                form.innerHTML += `
+                    <div class="question">
+                        (${i + 1}) ${q.question}
+                        <span class="translation">（和訳：${jp}）</span>
+                        <input type="text" id="q${currentQuiz.length - 1}">
+                    </div>`;
+            });
+
+            if (showTranslations) toggleTranslations();
+        }
+
+        function gradeQuiz() {
+            let score = 0;
+            let feedback = "<h3>採点結果</h3>";
+
+            currentQuiz.forEach((answer, i) => {
+                const inputElement = document.getElementById(`q${i}`);
+                if (!inputElement) return;
+
+                const userInput = inputElement.value.trim().toLowerCase();
+                const correct = userInput === answer;
+
+                if (correct) score++;
+
+                feedback += `
+                    <p class="${correct ? "correct" : "incorrect"}">
+                        問題${i + 1}:
+                        ${correct ? "正解" : `不正解（正答: ${answer}）`}
+                    </p>`;
+            });
+
+            feedback += `<p>得点: ${score} / ${currentQuiz.length}</p>`;
+            document.getElementById("result").innerHTML = feedback;
+        }
+    </script>
+</body>
+</html>
