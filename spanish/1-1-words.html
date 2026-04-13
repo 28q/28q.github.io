@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スペイン語 名詞クイズ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f7fa;
+            line-height: 1.8;
+        }
+        h1 {
+            text-align: center;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .question {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        input {
+            padding: 8px;
+            font-size: 16px;
+            width: 60%;
+            margin-top: 5px;
+        }
+        .result {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>スペイン語 名詞クイズ</h1>
+
+<div class="controls">
+    <button onclick="shuffleQuiz()">シャッフル</button>
+    <button onclick="checkAnswers()">採点</button>
+</div>
+
+<div class="quiz-container" id="quiz"></div>
+
+<script>
+const quizData = [
+    { japanese: "男性", spanish: "hombre" },
+    { japanese: "女性", spanish: "mujer" },
+    { japanese: "父", spanish: "padre" },
+    { japanese: "母", spanish: "madre" },
+    { japanese: "少年", spanish: "chico" },
+    { japanese: "少女", spanish: "chica" },
+    { japanese: "雄牛", spanish: "toro" },
+    { japanese: "雌牛", spanish: "vaca" },
+    { japanese: "本", spanish: "libro" },
+    { japanese: "ワイン", spanish: "vino" },
+    { japanese: "ボールペン", spanish: "bolígrafo" },
+    { japanese: "机", spanish: "mesa" },
+    { japanese: "広場", spanish: "plaza" },
+    { japanese: "都市", spanish: "ciudad" },
+    { japanese: "駅", spanish: "estación" },
+    { japanese: "テレビ", spanish: "televisión" },
+    { japanese: "写真", spanish: "foto" },
+    { japanese: "手", spanish: "mano" },
+    { japanese: "オートバイ", spanish: "moto" },
+    { japanese: "日", spanish: "día" },
+    { japanese: "地図", spanish: "mapa" },
+    { japanese: "問題", spanish: "problema" },
+    { japanese: "中庭", spanish: "patio" },
+    { japanese: "通り", spanish: "calle" },
+    { japanese: "花", spanish: "flor" },
+    { japanese: "病院", spanish: "hospital" },
+    { japanese: "歌", spanish: "canción" },
+    { japanese: "日本人", spanish: "japonés" },
+    { japanese: "試験", spanish: "examen" },
+    { japanese: "若者", spanish: "joven" },
+    { japanese: "ノート", spanish: "cuaderno" },
+    { japanese: "ペン", spanish: "pluma" }
+];
+
+function renderQuiz() {
+    const quizContainer = document.getElementById("quiz");
+    quizContainer.innerHTML = "";
+
+    quizData.forEach((item, index) => {
+        quizContainer.innerHTML += `
+            <div class="question">
+                <strong>問題 ${index + 1}：</strong> ${item.japanese}<br>
+                <input type="text" id="answer-${index}" autocomplete="off">
+                <span class="result" id="result-${index}"></span>
+            </div>
+        `;
+    });
+}
+
+function checkAnswers() {
+    quizData.forEach((item, index) => {
+        const input = document.getElementById(`answer-${index}`);
+        const result = document.getElementById(`result-${index}`);
+        const userAnswer = input.value.trim().toLowerCase();
+        const correctAnswer = item.spanish.toLowerCase();
+
+        if (userAnswer === correctAnswer) {
+            result.textContent = "正解";
+            result.className = "result correct";
+        } else {
+            result.textContent = `不正解（正解: ${item.spanish}）`;
+            result.className = "result incorrect";
+        }
+    });
+}
+
+function shuffleQuiz() {
+    for (let i = quizData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+    }
+    renderQuiz();
+}
+
+// 初期表示
+renderQuiz();
+</script>
+
+</body>
+</html>
