@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>1-1 アルファベット</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f7fa;
+            line-height: 1.8;
+        }
+        h1 {
+            text-align: center;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .question {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        input {
+            padding: 8px;
+            font-size: 16px;
+            width: 60%;
+            margin-top: 5px;
+        }
+        .result {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>1-1 アルファベット</h1>
+
+<div class="controls">
+    <button onclick="shuffleQuiz()">シャッフル</button>
+    <button onclick="checkAnswers()">採点</button>
+</div>
+
+<div class="quiz-container" id="quiz"></div>
+
+<script>
+/* スペイン語アルファベット（a～z）の読み */
+const quizData = [
+    { letter: "A", spanish: "a" },
+    { letter: "B", spanish: "be" },
+    { letter: "C", spanish: "ce" },
+    { letter: "D", spanish: "de" },
+    { letter: "E", spanish: "e" },
+    { letter: "F", spanish: "efe" },
+    { letter: "G", spanish: "ge" },
+    { letter: "H", spanish: "hache" },
+    { letter: "I", spanish: "i" },
+    { letter: "J", spanish: "jota" },
+    { letter: "K", spanish: "ka" },
+    { letter: "L", spanish: "ele" },
+    { letter: "M", spanish: "eme" },
+    { letter: "N", spanish: "ene" },
+    { letter: "O", spanish: "o" },
+    { letter: "P", spanish: "pe" },
+    { letter: "Q", spanish: "cu" },
+    { letter: "R", spanish: "ere" },
+    { letter: "S", spanish: "ese" },
+    { letter: "T", spanish: "te" },
+    { letter: "U", spanish: "u" },
+    { letter: "V", spanish: "uve" },
+    { letter: "W", spanish: "uve doble" },
+    { letter: "X", spanish: "equis" },
+    { letter: "Y", spanish: "ye" },
+    { letter: "Z", spanish: "zeta" }
+];
+
+function renderQuiz() {
+    const quizContainer = document.getElementById("quiz");
+    quizContainer.innerHTML = "";
+
+    quizData.forEach((item, index) => {
+        quizContainer.innerHTML += `
+            <div class="question">
+                <strong>問題 ${index + 1}：</strong> ${item.letter}<br>
+                <input type="text" id="answer-${index}" autocomplete="off">
+                <span class="result" id="result-${index}"></span>
+            </div>
+        `;
+    });
+}
+
+function normalize(text) {
+    return text
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // アクセント除去
+}
+
+function checkAnswers() {
+    quizData.forEach((item, index) => {
+        const input = document.getElementById(`answer-${index}`);
+        const result = document.getElementById(`result-${index}`);
+        const userAnswer = normalize(input.value);
+        const correctAnswer = normalize(item.spanish);
+
+        if (userAnswer === correctAnswer) {
+            result.textContent = "正解";
+            result.className = "result correct";
+        } else {
+            result.textContent = `不正解（正解: ${item.spanish}）`;
+            result.className = "result incorrect";
+        }
+    });
+}
+
+function shuffleQuiz() {
+    for (let i = quizData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+    }
+    renderQuiz();
+}
+
+// 初期表示
+renderQuiz();
+</script>
+
+</body>
+</html>
