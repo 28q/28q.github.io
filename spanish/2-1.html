@@ -24,7 +24,7 @@
         button:hover {
             background-color: #e6e6e6;
         }
-        input {
+        input[type="text"] {
             margin-left: 10px;
             padding: 5px;
             font-size: 16px;
@@ -33,10 +33,17 @@
         .question {
             margin-bottom: 15px;
         }
-        .choice-btn.selected {
-            background-color: #4a90e2;
-            color: white;
-            font-weight: bold;
+        .checkbox-label {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 6px 12px;
+            border: 1px solid #888;
+            border-radius: 6px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+        }
+        .checkbox-label:hover {
+            background-color: #e6e6e6;
         }
         .correct { color: green; }
         .incorrect { color: red; }
@@ -60,79 +67,169 @@
 <script>
 /* ---------------- アルファベット ---------------- */
 const alphabetQuestions = [
-    { letter: "A", answer: "a" },
-    { letter: "B", answer: "be" },
-    { letter: "C", answer: "ce" },
-    { letter: "D", answer: "de" },
-    { letter: "E", answer: "e" },
-    { letter: "F", answer: "efe" },
-    { letter: "G", answer: "ge" },
-    { letter: "H", answer: "hache" },
-    { letter: "I", answer: "i" },
-    { letter: "J", answer: "jota" },
-    { letter: "K", answer: "ka" },
-    { letter: "L", answer: "ele" },
-    { letter: "M", answer: "eme" },
-    { letter: "N", answer: "ene" },
-    { letter: "Ñ", answer: "eñe" },
-    { letter: "O", answer: "o" },
-    { letter: "P", answer: "pe" },
-    { letter: "Q", answer: "cu" },
-    { letter: "R", answer: "ere" },
-    { letter: "S", answer: "ese" },
-    { letter: "T", answer: "te" },
-    { letter: "U", answer: "u" },
-    { letter: "V", answer: "uve" },
-    { letter: "W", answer: "uve doble" },
-    { letter: "X", answer: "equis" },
-    { letter: "Y", answer: "ye" },
+    { letter: "A", answer: "a" }, { letter: "B", answer: "be" },
+    { letter: "C", answer: "ce" }, { letter: "D", answer: "de" },
+    { letter: "E", answer: "e" }, { letter: "F", answer: "efe" },
+    { letter: "G", answer: "ge" }, { letter: "H", answer: "hache" },
+    { letter: "I", answer: "i" }, { letter: "J", answer: "jota" },
+    { letter: "K", answer: "ka" }, { letter: "L", answer: "ele" },
+    { letter: "M", answer: "eme" }, { letter: "N", answer: "ene" },
+    { letter: "Ñ", answer: "eñe" }, { letter: "O", answer: "o" },
+    { letter: "P", answer: "pe" }, { letter: "Q", answer: "cu" },
+    { letter: "R", answer: "ere" }, { letter: "S", answer: "ese" },
+    { letter: "T", answer: "te" }, { letter: "U", answer: "u" },
+    { letter: "V", answer: "uve" }, { letter: "W", answer: "uve doble" },
+    { letter: "X", answer: "equis" }, { letter: "Y", answer: "ye" },
     { letter: "Z", answer: "zeta" }
 ];
 
-/* ---------------- 問題2(1) 二重母音なし ---------------- */
-const noDiphthongQuestions = [
-    { correct: "casa", options: ["casa", "aire", "cielo", "bueno"] },
-    { correct: "mesa", options: ["mesa", "tierra", "nuevo", "fuego"] },
-    { correct: "libro", options: ["libro", "reina", "ciudad", "cielo"] },
-    { correct: "gato", options: ["gato", "huevo", "aire", "suelo"] },
-    { correct: "vino", options: ["vino", "peine", "causa", "nueve"] },
-    { correct: "padre", options: ["padre", "buey", "europa", "viejo"] },
-    { correct: "perro", options: ["perro", "cielo", "rueda", "cuatro"] },
-    { correct: "carta", options: ["carta", "deuda", "vuelve", "nuevo"] },
-    { correct: "silla", options: ["silla", "tierra", "aire", "fuego"] },
-    { correct: "amigo", options: ["amigo", "ciudad", "peine", "huevo"] }
+/* ---------------- 問題2(1)：二重母音・三重母音 ---------------- */
+const noDiphthongWords = [
+    // 正解（単母音のみ）
+    { word: "casa", correct: true },
+    { word: "mesa", correct: true },
+    { word: "libro", correct: true },
+    { word: "gato", correct: true },
+    { word: "vino", correct: true },
+    { word: "padre", correct: true },
+    { word: "perro", correct: true },
+    { word: "carta", correct: true },
+    { word: "silla", correct: true },
+    { word: "amigo", correct: true },
+    { word: "mano", correct: true },
+    { word: "cara", correct: true },
+    { word: "peso", correct: true },
+    { word: "luna", correct: true },
+    { word: "rosa", correct: true },
+    { word: "sopa", correct: true },
+    { word: "mapa", correct: true },
+    { word: "taza", correct: true },
+    { word: "papa", correct: true },
+    { word: "muro", correct: true },
+    { word: "rama", correct: true },
+    { word: "lago", correct: true },
+    { word: "piso", correct: true },
+    { word: "coro", correct: true },
+    { word: "dedo", correct: true },
+    { word: "nube", correct: true },
+    { word: "boca", correct: true },
+    { word: "dato", correct: true },
+    { word: "modo", correct: true },
+    { word: "saco", correct: true },
+
+    // 不正解（二重母音・三重母音を含む）
+    { word: "aire", correct: false },
+    { word: "cielo", correct: false },
+    { word: "bueno", correct: false },
+    { word: "tierra", correct: false },
+    { word: "nuevo", correct: false },
+    { word: "fuego", correct: false },
+    { word: "huevo", correct: false },
+    { word: "suelo", correct: false },
+    { word: "peine", correct: false },
+    { word: "causa", correct: false },
+    { word: "nueve", correct: false },
+    { word: "Europa", correct: false },
+    { word: "viejo", correct: false },
+    { word: "reina", correct: false },
+    { word: "ciudad", correct: false },
+    { word: "rueda", correct: false },
+    { word: "puerta", correct: false },
+    { word: "cuidado", correct: false },
+    { word: "diario", correct: false },
+    { word: "estudio", correct: false },
+    { word: "viaje", correct: false },
+    { word: "auto", correct: false },
+    { word: "baile", correct: false },
+    { word: "oigo", correct: false },
+    { word: "buey", correct: false },
+    { word: "Uruguay", correct: false },
+    { word: "limpiáis", correct: false },
+    { word: "estudiáis", correct: false }
 ];
 
-/* ---------------- 問題2(2) 二重子音なし ---------------- */
-const noClusterQuestions = [
-    { correct: "casa", options: ["casa", "plaza", "tren", "blanco"] },
-    { correct: "mesa", options: ["mesa", "flor", "prado", "clase"] },
-    { correct: "amigo", options: ["amigo", "plato", "brisa", "grito"] },
-    { correct: "gato", options: ["gato", "fruta", "crudo", "globo"] },
-    { correct: "vino", options: ["vino", "bravo", "pluma", "claro"] },
-    { correct: "familia", options: ["familia", "tren", "plato", "grano"] },
-    { correct: "cocina", options: ["cocina", "flor", "brisa", "cráneo"] },
-    { correct: "domingo", options: ["domingo", "prado", "blusa", "clase"] },
-    { correct: "piano", options: ["piano", "plaza", "grito", "fruta"] },
+/* ---------------- 問題2(2)：二重子音 ---------------- */
+const noClusterWords = [
+    // 正解（二重子音なし）
+    { word: "casa", correct: true },
+    { word: "mesa", correct: true },
+    { word: "amigo", correct: true },
+    { word: "gato", correct: true },
+    { word: "vino", correct: true },
+    { word: "familia", correct: true },
+    { word: "cocina", correct: true },
+    { word: "domingo", correct: true },
+    { word: "piano", correct: true },
+    { word: "mano", correct: true },
+    { word: "cara", correct: true },
+    { word: "peso", correct: true },
+    { word: "luna", correct: true },
+    { word: "rosa", correct: true },
+    { word: "mapa", correct: true },
+    { word: "taza", correct: true },
+    { word: "sopa", correct: true },
+    { word: "muro", correct: true },
+    { word: "rama", correct: true },
+    { word: "lago", correct: true },
+    { word: "piso", correct: true },
+    { word: "coro", correct: true },
+    { word: "dedo", correct: true },
+    { word: "nube", correct: true },
+    { word: "boca", correct: true },
+    { word: "dato", correct: true },
+    { word: "modo", correct: true },
+    { word: "saco", correct: true },
+    { word: "arena", correct: true },
+    { word: "idea", correct: true },
+
+    // 不正解（二重子音を含む）
+    { word: "plaza", correct: false },
+    { word: "tren", correct: false },
+    { word: "blanco", correct: false },
+    { word: "flor", correct: false },
+    { word: "prado", correct: false },
+    { word: "clase", correct: false },
+    { word: "fruta", correct: false },
+    { word: "crudo", correct: false },
+    { word: "globo", correct: false },
+    { word: "brisa", correct: false },
+    { word: "grito", correct: false },
+    { word: "plato", correct: false },
+    { word: "brazo", correct: false },
+    { word: "grande", correct: false },
+    { word: "traje", correct: false },
+    { word: "drama", correct: false },
+    { word: "claro", correct: false },
+    { word: "fresa", correct: false },
+    { word: "gloria", correct: false },
+    { word: "primo", correct: false },
+    { word: "bloque", correct: false },
+    { word: "crisis", correct: false },
+    { word: "pluma", correct: false },
+    { word: "gracia", correct: false },
+    { word: "franco", correct: false },
+    { word: "trono", correct: false },
+    { word: "bravo", correct: false },
+    { word: "crema", correct: false }
 ];
 
 /* ---------------- 挨拶 ---------------- */
 const greetingQuestions = [
     { spanish: "Hola.", answer: "こんにちは。（１日中）" },
-    { spanish: "Buenos dias.", answer: "おはようございます" },
-    { spanish: "Buenos tardes.", answer: "こんにちは（昼食後）" },
-    { spanish: "Buenos noches.", answer: "こんばんは" },
+    { spanish: "Buenos días.", answer: "おはようございます" },
+    { spanish: "Buenas tardes.", answer: "こんにちは（昼食後）" },
+    { spanish: "Buenas noches.", answer: "こんばんは" },
     { spanish: "Hasta luego.", answer: "また後で" },
-    { spanish: "Adios.", answer: "さようなら" },
-    { spanish: "?Que tal?", answer: "元気？" },
+    { spanish: "Adiós.", answer: "さようなら" },
+    { spanish: "¿Qué tal?", answer: "元気？" },
     { spanish: "Gracias.", answer: "ありがとう" },
     { spanish: "De nada.", answer: "どういたしまして" },
     { spanish: "Lo siento.", answer: "申し訳ありません" },
-    { spanish: "Si.", answer: "はい" },
+    { spanish: "Sí.", answer: "はい" },
     { spanish: "No.", answer: "いいえ" },
     { spanish: "Encantado.", answer: "初めまして（男性）" },
     { spanish: "Encantada.", answer: "初めまして（女性）" },
-    { spanish: "Mucho gusto.", answer: "初めまして（男性または女性）" }
+    { spanish: "Mucho gusto.", answer: "初めまして" }
 ];
 
 let currentQuiz = [];
@@ -154,6 +251,34 @@ function toggleChoices(id) {
     div.style.display = div.style.display === "none" ? "block" : "none";
 }
 
+function generateMultiQuestion(title, wordList) {
+    const form = document.getElementById("quizForm");
+    form.innerHTML += `<h3>${title}</h3>`;
+
+    const selected = shuffle(wordList).slice(0, 4);
+    const correctAnswers = selected
+        .filter(w => w.correct)
+        .map(w => w.word);
+
+    currentQuiz.push({
+        type: "multi",
+        answer: correctAnswers
+    });
+
+    const qIndex = currentQuiz.length - 1;
+
+    form.innerHTML += `<div class="question">`;
+    selected.forEach(w => {
+        form.innerHTML += `
+            <label class="checkbox-label">
+                <input type="checkbox" name="q${qIndex}" value="${w.word}">
+                ${w.word}
+            </label>
+        `;
+    });
+    form.innerHTML += `</div>`;
+}
+
 function generateQuiz() {
     const form = document.getElementById("quizForm");
     const result = document.getElementById("result");
@@ -164,67 +289,48 @@ function generateQuiz() {
 
     /* ---------- 問題1 ---------- */
     form.innerHTML += "<h3>1. アルファベットの読み方を答えてください。（5問）</h3>";
-    shuffle(alphabetQuestions).slice(0,5).forEach((q,i)=>{
-        currentQuiz.push({type:"text",answer:q.answer});
+    shuffle(alphabetQuestions).slice(0, 5).forEach((q, i) => {
+        currentQuiz.push({ type: "text", answer: q.answer });
         form.innerHTML += `
             <div class="question">
-                (${i+1}) ${q.letter}
-                <input type="text" id="q${currentQuiz.length-1}">
+                (${i + 1}) ${q.letter}
+                <input type="text" id="q${currentQuiz.length - 1}">
             </div>`;
     });
 
-    /* ---------- 問題2(1) ---------- */
-    form.innerHTML += "<h3>2.(1) 二重母音・三重母音を含まない単語を選びなさい。</h3>";
-    const dip = shuffle(noDiphthongQuestions)[0];
-    currentQuiz.push({type:"choice",answer:dip.correct});
-    form.innerHTML += `<div class="question">`;
-    dip.options.forEach(opt=>{
-        form.innerHTML += `
-            <button type="button" class="choice-btn"
-                data-id="q${currentQuiz.length-1}"
-                onclick="chooseAnswer('q${currentQuiz.length-1}','${opt}',this)">
-                ${opt}
-            </button>`;
-    });
-    form.innerHTML += `</div>`;
+    /* ---------- 問題2 ---------- */
+    generateMultiQuestion(
+        "2.(1) 二重母音または三重母音を含まないものを選びなさい。（複数選択可）",
+        noDiphthongWords
+    );
 
-    /* ---------- 問題2(2) ---------- */
-    form.innerHTML += "<h3>2.(2) 二重子音を含まない単語を選びなさい。</h3>";
-    const clu = shuffle(noClusterQuestions)[0];
-    currentQuiz.push({type:"choice",answer:clu.correct});
-    form.innerHTML += `<div class="question">`;
-    clu.options.forEach(opt=>{
-        form.innerHTML += `
-            <button type="button" class="choice-btn"
-                data-id="q${currentQuiz.length-1}"
-                onclick="chooseAnswer('q${currentQuiz.length-1}','${opt}',this)">
-                ${opt}
-            </button>`;
-    });
-    form.innerHTML += `</div>`;
+    generateMultiQuestion(
+        "2.(2) 二重子音を含まないものを選びなさい。（複数選択可）",
+        noClusterWords
+    );
 
     /* ---------- 問題3 ---------- */
     form.innerHTML += "<h3>3. 次のスペイン語の挨拶表現を和訳してください。（3問）</h3>";
-    shuffle(greetingQuestions).slice(0,3).forEach((q,i)=>{
-        const options = shuffle(greetingQuestions.map(g=>g.answer))
-                        .filter(a=>a!==q.answer)
-                        .slice(0,3);
+    shuffle(greetingQuestions).slice(0, 3).forEach((q, i) => {
+        const options = shuffle(greetingQuestions.map(g => g.answer))
+            .filter(a => a !== q.answer)
+            .slice(0, 3);
         options.push(q.answer);
         shuffle(options);
 
-        currentQuiz.push({type:"choice",answer:q.answer});
+        currentQuiz.push({ type: "choice", answer: q.answer });
         const id = `choices${i}`;
         form.innerHTML += `
             <div class="question">
-                (${i+1}) ${q.spanish}<br>
+                (${i + 1}) ${q.spanish}<br>
                 <button type="button" onclick="toggleChoices('${id}')">
                     選択肢を表示
                 </button>
                 <div id="${id}" style="display:none;">
-                    ${options.map(opt=>`
+                    ${options.map(opt => `
                         <button type="button" class="choice-btn"
-                            data-id="q${currentQuiz.length-1}"
-                            onclick="chooseAnswer('q${currentQuiz.length-1}','${opt}',this)">
+                            data-id="q${currentQuiz.length - 1}"
+                            onclick="chooseAnswer('q${currentQuiz.length - 1}','${opt}',this)">
                             ${opt}
                         </button>
                     `).join("")}
@@ -237,24 +343,38 @@ function gradeQuiz() {
     let score = 0;
     let feedback = "<h3>採点結果</h3>";
 
-    currentQuiz.forEach((q,i)=>{
-        let userAnswer;
-        if(q.type==="text"){
-            userAnswer=document.getElementById(`q${i}`).value.trim().toLowerCase();
-        }else{
-            userAnswer=(selectedAnswers[`q${i}`]||"").toLowerCase();
-        }
-        const correct=q.answer.toLowerCase();
-        const ok=userAnswer===correct;
-        if(ok) score++;
+    currentQuiz.forEach((q, i) => {
+        let ok = false;
 
-        feedback+=`<p class="${ok?"correct":"incorrect"}">
-            問題${i+1}: ${ok?"正解":`不正解（正答: ${q.answer}）`}
+        if (q.type === "text") {
+            const userAnswer = document
+                .getElementById(`q${i}`)
+                .value.trim().toLowerCase();
+            ok = userAnswer === q.answer.toLowerCase();
+        } else if (q.type === "choice") {
+            const userAnswer = (selectedAnswers[`q${i}`] || "").toLowerCase();
+            ok = userAnswer === q.answer.toLowerCase();
+        } else if (q.type === "multi") {
+            const checked = [...document.querySelectorAll(`input[name="q${i}"]:checked`)]
+                .map(el => el.value)
+                .sort();
+            const correct = [...q.answer].sort();
+            ok = JSON.stringify(checked) === JSON.stringify(correct);
+        }
+
+        if (ok) score++;
+
+        feedback += `<p class="${ok ? "correct" : "incorrect"}">
+            問題${i + 1}: ${
+                ok
+                    ? "正解"
+                    : `不正解（正答: ${Array.isArray(q.answer) ? q.answer.join(", ") : q.answer}）`
+            }
         </p>`;
     });
 
-    feedback+=`<p>得点: ${score} / ${currentQuiz.length}</p>`;
-    document.getElementById("result").innerHTML=feedback;
+    feedback += `<p>得点: ${score} / ${currentQuiz.length}</p>`;
+    document.getElementById("result").innerHTML = feedback;
 }
 </script>
 </body>
