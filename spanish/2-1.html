@@ -316,16 +316,26 @@ function generateQuiz() {
     );
 
     /* ---------- 問題3 ---------- */
-    form.innerHTML += "<h3>3. 次のスペイン語の挨拶表現を和訳してください。（3問）</h3>";
-    shuffle(greetingQuestions).slice(0, 3).forEach((q, i) => {
-        const options = shuffle(greetingQuestions.map(g => g.answer))
-            .filter(a => a !== q.answer)
-            .slice(0, 3);
-        options.push(q.answer);
-        shuffle(options);
-
+    form.innerHTML += "<h3>3. 次のスペイン語の挨拶表現を和訳してください。（5問）</h3>";
+    
+    // 挨拶をシャッフルして5問選択
+    const selectedGreetings = shuffle(greetingQuestions).slice(0, 5);
+    
+    selectedGreetings.forEach((q, i) => {
+        // 不正解の選択肢を生成（正解を除く）
+        let distractors = shuffle(
+            greetingQuestions
+                .map(g => g.answer)
+                .filter(ans => ans !== q.answer)
+        ).slice(0, 3);
+    
+        // 正解を追加して再シャッフル
+        let options = shuffle([...distractors, q.answer]);
+    
         currentQuiz.push({ type: "choice", answer: q.answer });
-        const id = `choices${i}`;
+        const qIndex = currentQuiz.length - 1;
+        const id = `choices${qIndex}`;
+    
         form.innerHTML += `
             <div class="question">
                 (${i + 1}) ${q.spanish}<br>
@@ -335,8 +345,8 @@ function generateQuiz() {
                 <div id="${id}" style="display:none;">
                     ${options.map(opt => `
                         <button type="button" class="choice-btn"
-                            data-id="q${currentQuiz.length - 1}"
-                            onclick="chooseAnswer('q${currentQuiz.length - 1}','${opt}',this)">
+                            data-id="q${qIndex}"
+                            onclick="chooseAnswer('q${qIndex}','${opt}',this)">
                             ${opt}
                         </button>
                     `).join("")}
