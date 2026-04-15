@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Reading Speed Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 40px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+
+        button:hover {
+            background-color: #ddd;
+        }
+
+        .active {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        #text-container {
+            display: none;
+            max-width: 800px;
+            margin: 30px auto;
+            line-height: 1.8;
+            text-align: left;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        #result {
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Reading Speed Test</h1>
+
+    <div class="controls">
+        <h3>文字サイズ</h3>
+        <button onclick="setFontSize('small', this)">小</button>
+        <button onclick="setFontSize('medium', this)">中</button>
+        <button onclick="setFontSize('large', this)">大</button>
+
+        <h3>文字の太さ</h3>
+        <button onclick="setFontWeight('normal', this)">標準</button>
+        <button onclick="setFontWeight('bold', this)">太字</button>
+        <button onclick="setFontWeight('bolder', this)">極太</button>
+
+        <h3>配色</h3>
+        <button onclick="setColorTheme('theme1', this)">白背景</button>
+        <button onclick="setColorTheme('theme2', this)">黒背景</button>
+        <button onclick="setColorTheme('theme3', this)">淡色背景</button>
+    </div>
+
+    <div>
+        <button onclick="startReading()">開始</button>
+        <button onclick="endReading()">終了</button>
+    </div>
+
+    <div id="text-container">
+        <p id="reading-text">
+            The North Wind and the Sun were disputing which was the stronger, when a traveler came along wrapped in a warm cloak. 
+            They agreed that the one who first succeeded in making the traveler take off his cloak should be considered stronger 
+            than the other. Then the North Wind blew as hard as he could, but the more he blew, the more closely the traveler 
+            wrapped his cloak around him; and at last the North Wind gave up the attempt. Then the Sun shone out warmly, and 
+            immediately the traveler took off his cloak. And so the North Wind was obliged to confess that the Sun was the stronger 
+            of the two.
+        </p>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        let startTime = null;
+
+        function setActive(button) {
+            const siblings = button.parentElement.querySelectorAll("button");
+            siblings.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+        }
+
+        function setFontSize(size, button) {
+            const text = document.getElementById("reading-text");
+            if (size === "small") text.style.fontSize = "16px";
+            if (size === "medium") text.style.fontSize = "20px";
+            if (size === "large") text.style.fontSize = "24px";
+            setActive(button);
+        }
+
+        function setFontWeight(weight, button) {
+            document.getElementById("reading-text").style.fontWeight = weight;
+            setActive(button);
+        }
+
+        function setColorTheme(theme, button) {
+            const body = document.body;
+            const container = document.getElementById("text-container");
+
+            if (theme === "theme1") {
+                body.style.backgroundColor = "#ffffff";
+                body.style.color = "#000000";
+                container.style.backgroundColor = "#ffffff";
+            } else if (theme === "theme2") {
+                body.style.backgroundColor = "#000000";
+                body.style.color = "#ffffff";
+                container.style.backgroundColor = "#222222";
+            } else if (theme === "theme3") {
+                body.style.backgroundColor = "#f4ecd8";
+                body.style.color = "#333333";
+                container.style.backgroundColor = "#fffaf0";
+            }
+            setActive(button);
+        }
+
+        function startReading() {
+            document.getElementById("text-container").style.display = "block";
+            document.getElementById("result").textContent = "";
+            startTime = new Date();
+        }
+
+        function endReading() {
+            if (!startTime) {
+                alert("先に開始ボタンを押してください。");
+                return;
+            }
+            const endTime = new Date();
+            const seconds = ((endTime - startTime) / 1000).toFixed(2);
+            document.getElementById("result").textContent =
+                "読むのにかかった時間：" + seconds + " 秒";
+        }
+
+        // 初期設定
+        window.onload = function () {
+            document.querySelectorAll(".controls")[0].querySelectorAll("button")[1].click();
+            document.querySelectorAll(".controls")[1].querySelectorAll("button")[0].click();
+            document.querySelectorAll(".controls")[2].querySelectorAll("button")[0].click();
+        };
+    </script>
+
+</body>
+</html>
