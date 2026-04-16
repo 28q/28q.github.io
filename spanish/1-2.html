@@ -13,6 +13,7 @@ input{margin-left:10px;padding:5px;font-size:16px;width:200px;}
 #result{margin-top:20px;font-weight:bold;}
 .translation{display:none;color:#555;margin-left:10px;}
 .wordbox{color:#666;font-size:0.9em;margin-top:4px;}
+canvas{max-width:500px;margin-top:20px;} 
 </style>
 </head>
 <body>
@@ -24,10 +25,28 @@ input{margin-left:10px;padding:5px;font-size:16px;width:200px;}
 <form id="quizForm"></form>
 <button onclick="gradeQuiz()">採点</button>
 <div id="result"></div>
+<button onclick="resetHistory()">履歴リセット</button>
+<canvas id="chart" height="200"></canvas>
 
 <script>
 let show=false;
 let current=[];
+let history = JSON.parse(localStorage.getItem('scoreHistory') || '[]');
+let chart;
+
+function drawChart(){
+ const ctx=document.getElementById('chart');
+ if(!ctx) return;
+ if(chart) chart.destroy();
+ chart=new Chart(ctx,{
+  type:'line',
+  data:{
+   labels:history.map((_,i)=>`回${i+1}`),
+   datasets:[{label:'得点(%)',data:history,fill:false}]
+  },
+  options:{responsive:true}
+ });
+}
 
 function toggleTranslations(){
  show=!show;
@@ -58,7 +77,17 @@ const poss=[
  {q:'___ hermanas están aquí.（君の姉妹）',a:'tus'},
  {q:'___ coche es rojo.（彼の車）',a:'su'},
  {q:'___ amigos están en Madrid.（私たちの友達）',a:'nuestros'},
- {q:'___ casa es grande.（私たちの家）',a:'nuestra'}
+ {q:'___ casa es grande.（私たちの家）',a:'nuestra'},
+ {q:'___ profesor es amable.（彼らの先生）',a:'su'},
+ {q:'___ amigos son buenos.（君たちの友達）',a:'vuestros'},
+ {q:'___ hermana es alta.（私の姉）',a:'mi'},
+ {q:'___ casas son nuevas.（彼らの家）',a:'sus'},
+ {q:'___ coche es azul.（君の車）',a:'tu'},
+ {q:'___ padres están aquí.（私たちの両親）',a:'nuestros'},
+ {q:'___ libros son difíciles.（彼の本）',a:'sus'},
+ {q:'___ amiga es simpática.（私の友達）',a:'mi'},
+ {q:'___ profesores son estrictos.（彼らの先生たち）',a:'sus'},
+ {q:'___ casa está aquí.（君たちの家）',a:'vuestra'}
 ];
 
 const haberEstar=[
@@ -70,20 +99,49 @@ const haberEstar=[
  {q:'Mi padre ___ en casa.（父は家にいる）',a:'está'},
  {q:'___ tres coches.（車が3台ある）',a:'hay'},
  {q:'Los gatos ___ aquí.（猫はここにいる）',a:'están'},
- {q:'La estación ___ lejos.（駅は遠い）',a:'está'}
+ {q:'La estación ___ lejos.（駅は遠い）',a:'está'},
+ {q:'___ un libro en la mesa.（机に本がある）',a:'hay'},
+ {q:'Los estudiantes ___ en clase.（学生は授業中）',a:'están'},
+ {q:'___ muchas casas aquí.（ここに家が多い）',a:'hay'},
+ {q:'El banco ___ cerrado.（銀行は閉まっている）',a:'está'},
+ {q:'___ dos profesores.（先生が2人いる）',a:'hay'},
+ {q:'Mi madre ___ en la cocina.（母は台所にいる）',a:'está'},
+ {q:'___ un parque cerca.（近くに公園がある）',a:'hay'},
+ {q:'Los niños ___ en el parque.（子供たちは公園にいる）',a:'están'},
+ {q:'___ una mesa grande.（大きな机がある）',a:'hay'},
+ {q:'La tienda ___ abierta.（店は開いている）',a:'está'},
+ {q:'Yo ___ en casa ahora.（私は今家にいる）',a:'estoy'},
+ {q:'Tú ___ en la escuela.（君は学校にいる）',a:'estás'},
+ {q:'Nosotros ___ en Madrid.（私たちはマドリードにいる）',a:'estamos'},
+ {q:'Vosotros ___ en casa.（君たちは家にいる）',a:'estáis'},
+ {q:'Ellos ___ en Japón.（彼らは日本にいる）',a:'están'}
 ];
 
 // vocabは名詞・形容詞のみ
 const donde=[
  {jp:'駅はどこですか？',a:'¿Dónde está la estación?',v:'estación'},
  {jp:'その本はどこですか？',a:'¿Dónde está el libro?',v:'libro'},
- {jp:'あなたの家はどこですか？',a:'¿Dónde está tu casa?',v:'casa'}
+ {jp:'あなたの家はどこですか？',a:'¿Dónde está tu casa?',v:'casa'},
+ {jp:'学校はどこですか？',a:'¿Dónde está la escuela?',v:'escuela'},
+ {jp:'銀行はどこですか？',a:'¿Dónde está el banco?',v:'banco'},
+ {jp:'公園はどこですか？',a:'¿Dónde está el parque?',v:'parque'},
+ {jp:'図書館はどこですか？',a:'¿Dónde está la biblioteca?',v:'biblioteca'},
+ {jp:'その店はどこですか？',a:'¿Dónde está la tienda?',v:'tienda'},
+ {jp:'ホテルはどこですか？',a:'¿Dónde está el hotel?',v:'hotel'},
+ {jp:'レストランはどこですか？',a:'¿Dónde está el restaurante?',v:'restaurante'}
 ];
 
 const como=[
  {jp:'その料理はどんなですか？',a:'¿Cómo es la comida?',v:'comida'},
  {jp:'学生はどんな人ですか？',a:'¿Cómo son los estudiantes?',v:'estudiantes'},
- {jp:'その家はどんなですか？',a:'¿Cómo es la casa?',v:'casa'}
+ {jp:'その家はどんなですか？',a:'¿Cómo es la casa?',v:'casa'},
+ {jp:'その映画はどうですか？',a:'¿Cómo es la película?',v:'película'},
+ {jp:'その町はどんなですか？',a:'¿Cómo es la ciudad?',v:'ciudad'},
+ {jp:'その先生はどんな人ですか？',a:'¿Cómo es el profesor?',v:'profesor'},
+ {jp:'その本はどうですか？',a:'¿Cómo es el libro?',v:'libro'},
+ {jp:'そのレストランはどうですか？',a:'¿Cómo es el restaurante?',v:'restaurante'},
+ {jp:'そのホテルはどうですか？',a:'¿Cómo es el hotel?',v:'hotel'},
+ {jp:'その公園はどんなですか？',a:'¿Cómo es el parque?',v:'parque'}
 ];
 
 function generateQuiz(){
@@ -128,11 +186,38 @@ function gradeQuiz(){
   if(ok)score++;
   out+=`<p class='${ok?'correct':'incorrect'}'>${i+1}: ${ok?'〇':'× '+a}</p>`;
  });
- out+=`<p>${score}/${current.length}</p>`;
+
+ const total=current.length;
+ const percent=Math.round((score/total)*100);
+
+ // 履歴保存（直近5回）
+ history.push(percent);
+ if(history.length>5) history.shift();
+ localStorage.setItem('scoreHistory',JSON.stringify(history));
+
+ const avg = Math.round(history.reduce((a,b)=>a+b,0)/history.length);
+
+ out+=`<p>${score}/${total} (${percent}%)</p>`;
+ out+=`<p>直近${history.length}回の平均: ${avg}%</p>`;
+ drawChart();
+
  document.getElementById('result').innerHTML=out;
 }
 
+function resetHistory(){
+ history=[];
+ localStorage.removeItem('scoreHistory');
+ drawChart();
+ document.getElementById('result').innerHTML='履歴をリセットしました';
+}
+
+// Chart.js読み込み
+document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+
 generateQuiz();
 </script>
+
+<p><a href="../spanish.html">← 目次に戻る</a></p>
+
 </body>
 </html>
