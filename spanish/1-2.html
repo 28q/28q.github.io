@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>スペイン語 1-2 演習</title>
+<style>
+body { font-family: Arial; margin:40px; line-height:1.8; }
+h1{text-align:center;}
+button{padding:10px 20px;margin:5px;font-size:16px;cursor:pointer;}
+input{margin-left:10px;padding:5px;font-size:16px;width:200px;}
+.question{margin-bottom:15px;}
+.correct{color:green;} .incorrect{color:red;}
+#result{margin-top:20px;font-weight:bold;}
+.translation{display:none;color:#555;margin-left:10px;}
+.wordbox{color:#666;font-size:0.9em;margin-top:4px;}
+</style>
+</head>
+<body>
+<h1>スペイン語 1-2 演習</h1>
+
+<button onclick="generateQuiz()">問題生成</button>
+<button onclick="toggleTranslations()" id="toggleBtn">答え表示</button>
+
+<form id="quizForm"></form>
+<button onclick="gradeQuiz()">採点</button>
+<div id="result"></div>
+
+<script>
+let show=false;
+let current=[];
+
+function toggleTranslations(){
+ show=!show;
+ document.querySelectorAll('.translation').forEach(e=>e.style.display=show?'inline':'none');
+ document.getElementById('toggleBtn').textContent=show?'答え非表示':'答え表示';
+}
+
+function shuffle(array){
+ const result=[...array];
+ for(let i=result.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [result[i],result[j]]=[result[j],result[i]];
+ }
+ return result;
+}
+
+function norm(s){
+ return s.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+// ★3倍量
+const poss=[
+ {q:'___ madre es profesora.（私の母は先生です）',a:'mi'},
+ {q:'___ casa está lejos.（君の家は遠い）',a:'tu'},
+ {q:'___ amigos son estudiantes.（彼らの友達は学生）',a:'sus'},
+ {q:'___ padre trabaja.（私の父）',a:'mi'},
+ {q:'___ libros son nuevos.（私の本）',a:'mis'},
+ {q:'___ hermanas están aquí.（君の姉妹）',a:'tus'},
+ {q:'___ coche es rojo.（彼の車）',a:'su'},
+ {q:'___ amigos están en Madrid.（私たちの友達）',a:'nuestros'},
+ {q:'___ casa es grande.（私たちの家）',a:'nuestra'}
+];
+
+const haberEstar=[
+ {q:'En la sala ___ dos mesas.（部屋に机が2つある）',a:'hay'},
+ {q:'La escuela ___ cerca.（学校は近い）',a:'está'},
+ {q:'___ muchos estudiantes.（多くの学生がいる）',a:'hay'},
+ {q:'Los libros ___ en la mesa.（本は机の上）',a:'están'},
+ {q:'___ una farmacia aquí.（ここに薬局がある）',a:'hay'},
+ {q:'Mi padre ___ en casa.（父は家にいる）',a:'está'},
+ {q:'___ tres coches.（車が3台ある）',a:'hay'},
+ {q:'Los gatos ___ aquí.（猫はここにいる）',a:'están'},
+ {q:'La estación ___ lejos.（駅は遠い）',a:'está'}
+];
+
+// vocabは名詞・形容詞のみ
+const donde=[
+ {jp:'駅はどこですか？',a:'¿Dónde está la estación?',v:'estación'},
+ {jp:'その本はどこですか？',a:'¿Dónde está el libro?',v:'libro'},
+ {jp:'あなたの家はどこですか？',a:'¿Dónde está tu casa?',v:'casa'}
+];
+
+const como=[
+ {jp:'その料理はどんなですか？',a:'¿Cómo es la comida?',v:'comida'},
+ {jp:'学生はどんな人ですか？',a:'¿Cómo son los estudiantes?',v:'estudiantes'},
+ {jp:'その家はどんなですか？',a:'¿Cómo es la casa?',v:'casa'}
+];
+
+function generateQuiz(){
+ const form=document.getElementById('quizForm');
+ const res=document.getElementById('result');
+ form.innerHTML=''; res.innerHTML=''; current=[];
+
+ //1
+ form.innerHTML+='<h3>1. 所有詞 1×3</h3>';
+ shuffle(poss).slice(0,3).forEach((x,i)=>{
+  current.push(x.a);
+  form.innerHTML+=`<div class='question'>(${i+1}) ${x.q.replace('___','(　)')}<input id='q${current.length-1}'></div>`;
+ });
+
+ //2
+ form.innerHTML+='<h3>2. haber / estar 1×3</h3>';
+ shuffle(haberEstar).slice(0,3).forEach((x,i)=>{
+  current.push(x.a);
+  form.innerHTML+=`<div class='question'>(${i+1}) ${x.q.replace('___','(　)')}<input id='q${current.length-1}'></div>`;
+ });
+
+ //3
+ const w=shuffle(donde)[0];
+ const c=shuffle(como)[0];
+ const arr=shuffle([w,c]);
+
+ form.innerHTML+='<h3>3. 和文→西文 2×2</h3>';
+ arr.forEach((x,i)=>{
+  current.push(x.a);
+  form.innerHTML+=`<div class='question'>(${i+1}) ${x.jp}
+  <span class='translation'>（${x.a}）</span>
+  <div class='wordbox'>語彙: ${x.v}</div>
+  <input id='q${current.length-1}'></div>`;
+ });
+}
+
+function gradeQuiz(){
+ let score=0; let out='';
+ current.forEach((a,i)=>{
+  const v=norm(document.getElementById('q'+i).value);
+  const ok=v===norm(a);
+  if(ok)score++;
+  out+=`<p class='${ok?'correct':'incorrect'}'>${i+1}: ${ok?'〇':'× '+a}</p>`;
+ });
+ out+=`<p>${score}/${current.length}</p>`;
+ document.getElementById('result').innerHTML=out;
+}
+
+generateQuiz();
+</script>
+</body>
+</html>
