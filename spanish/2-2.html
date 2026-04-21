@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スペイン語 2-2 総合演習</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.8;
+            background-color: #f5f7fa;
+        }
+        h1 { text-align: center; color: #333; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #45a049; }
+        .show-opt-btn {
+            background-color: #2196F3;
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+        .show-opt-btn:hover { background-color: #1976D2; }
+        
+        h3 { border-bottom: 2px solid #4CAF50; padding-bottom: 5px; margin-top: 30px; }
+        
+        input[type="text"], select {
+            padding: 6px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="text"] { width: 150px; margin: 0 10px; }
+        
+        .question { margin-bottom: 15px; padding: 10px; background-color: #fafafa; border-radius: 6px; }
+        .checkbox-label {
+            display: inline-block; margin: 5px 10px; padding: 6px 12px;
+            border: 1px solid #ccc; border-radius: 6px; background-color: #fff; cursor: pointer;
+        }
+        .checkbox-label:hover { background-color: #e6e6e6; }
+        
+        .conv-block {
+            border-left: 4px solid #2196F3;
+            background-color: #e3f2fd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 6px 6px 0;
+        }
+        .conv-line { margin: 10px 0; display: flex; align-items: center; }
+        .conv-speaker { font-weight: bold; width: 100px; }
+        select { width: 300px; }
+
+        .correct { color: #2e7d32; font-weight: bold; margin: 2px 0; }
+        .incorrect { color: #c62828; font-weight: bold; margin: 2px 0; }
+        #result { margin-top: 30px; padding-top: 20px; border-top: 2px dashed #ccc; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>スペイン語 2-2 総合演習</h1>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <button onclick="generateQuiz()">問題を生成する / シャッフル</button>
+    </div>
+    
+    <form id="quizForm"></form>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <button onclick="gradeQuiz()">正答を判定する</button>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+// --- 1. 数詞 ---
+const numbers = [
+    { num: "0", word: "cero" }, { num: "1", word: "uno" }, { num: "2", word: "dos" },
+    { num: "3", word: "tres" }, { num: "4", word: "cuatro" }, { num: "5", word: "cinco" },
+    { num: "6", word: "seis" }, { num: "7", word: "siete" }, { num: "8", word: "ocho" },
+    { num: "9", word: "nueve" }, { num: "10", word: "diez" }
+];
+
+// --- 2. 発音グループ（動的生成用） ---
+const phonemeGroups = {
+    "k": ["casa", "cama", "copa", "color", "cuna", "cubo", "queso", "quince", "parque", "carta", "loco", "pico", "rico", "blanco", "disco"], // [k]の音 (c, qu)
+    "th": ["zapato", "zorro", "zumo", "taza", "plaza", "cena", "cine", "cinco", "cero", "cerca", "cielo", "azul", "lápiz"], // [θ/s]の音 (z, c)
+    "g": ["gato", "goma", "gusano", "lago", "fuego", "guerra", "guitarra", "amigo", "abrigo", "largo", "pague"], // [g]の音 (g, gu)
+    "x": ["jabón", "joven", "jugar", "jefe", "jinete", "reloj", "viaje", "gente", "gigante", "genio", "colegio", "página", "rojo", "ojo"] // [x]の音 (j, g)
+};
+// 仲間外れを作るためのペア（似た綴りで発音が違うものを引っかけにする）
+const phonemePairs = { "k": "th", "th": "k", "g": "x", "x": "g" };
+
+// --- 3. アクセント ---
+const accents = [
+    { word: "ascensor", syllables: "as-cen-sor", accent: "sor" },
+    { word: "capricho", syllables: "ca-pri-cho", accent: "pri" },
+    { word: "examen", syllables: "e-xa-men", accent: "xa" },
+    { word: "reembolso", syllables: "re-em-bol-so", accent: "bol" },
+    { word: "instrucción", syllables: "ins-truc-ción", accent: "ción" },
+    { word: "discontinuidad", syllables: "dis-con-ti-nui-dad", accent: "dad" },
+    { word: "noviembre", syllables: "no-viem-bre", accent: "viem" },
+    { word: "zanahoria", syllables: "za-na-ho-ria", accent: "ho" }
+];
+
+// --- 4. 会話 ---
+const allConvLines = [
+    "¡Hola!", "Hola, ¿qué tal estás?", "Muy bien.", 
+    "Buenos días.", "¿Cómo estás?", "Bien.",
+    "Hola, me llamo Mario.", "Hola, me llamo Yoshimi. Encantada.", "Mucho gusto.",
+    "Buenas tardes.", "Buenas tardes, profesora. ¿Cómo está?", "Bien, gracias.",
+    "Adiós.", "¡Hasta mañana!"
+];
+
+const conversations = [
+    [ { s: "Teresa", t: "¡Hola!" }, { s: "John", t: "Hola, ¿qué tal estás?" }, { s: "Teresa", t: "Muy bien." } ],
+    [ { s: "Juan", t: "Buenos días." }, { s: "Yoko", t: "Buenos días." }, { s: "Juan", t: "¿Cómo estás?" }, { s: "Yoko", t: "Bien." } ],
+    [ { s: "Mario", t: "Hola, me llamo Mario." }, { s: "Yoshimi", t: "Hola, me llamo Yoshimi. Encantada." }, { s: "Mario", t: "Mucho gusto." } ],
+    [ { s: "Profesora", t: "Buenas tardes." }, { s: "Xiang", t: "Buenas tardes, profesora. ¿Cómo está?" }, { s: "Profesora", t: "Bien, gracias." } ],
+    [ { s: "Ichiro", t: "Adiós." }, { s: "Beatriz", t: "¡Hasta mañana!" } ]
+];
+
+let currentQuizData = {};
+
+function shuffle(array) {
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+}
+
+// 選択肢作成用（正解 + ダミー3つ）
+function getOptions(correctAnswer) {
+    let dummies = allConvLines.filter(line => line !== correctAnswer);
+    dummies = shuffle(dummies).slice(0, 3);
+    return shuffle([correctAnswer, ...dummies]);
+}
+
+function normalizeText(text) {
+    return text.toLowerCase().trim().replace(/\s*-\s*/g, '-');
+}
+
+function generateQuiz() {
+    const form = document.getElementById("quizForm");
+    form.innerHTML = "";
+    document.getElementById("result").innerHTML = "";
+    currentQuizData = { numbers: [], pronunciation: [], accents: [], conversation: [] };
+
+    // 1. 数詞
+    form.innerHTML += "<h3>1. 数詞をスペイン語で書きなさい。（5問）</h3>";
+    const selectedNumbers = shuffle(numbers).slice(0, 5);
+    selectedNumbers.forEach((q, i) => {
+        currentQuizData.numbers.push(q);
+        form.innerHTML += `
+            <div class="question">
+                (${i + 1}) <strong>${q.num}</strong>
+                <input type="text" id="num_q${i}" autocomplete="off">
+            </div>`;
+    });
+
+    // 2. 発音（動的生成）
+    form.innerHTML += "<h3>2. 次の単語と同じ発音（子音）を含まないものを1つ選びなさい。（5問）</h3>";
+    const keys = Object.keys(phonemeGroups);
+    
+    for(let i=0; i<5; i++) {
+        // ベースのグループをランダムに選ぶ
+        let baseKey = keys[Math.floor(Math.random() * keys.length)];
+        let outcastKey = phonemePairs[baseKey]; // 対になる引っかけグループ
+        
+        let baseWords = shuffle([...phonemeGroups[baseKey]]);
+        let outcastWords = shuffle([...phonemeGroups[outcastKey]]);
+        
+        let target = baseWords[0];
+        let dummies = [baseWords[1], baseWords[2], baseWords[3]];
+        let answer = outcastWords[0];
+        
+        let options = shuffle([...dummies, answer]);
+        currentQuizData.pronunciation.push({ target: target, answer: answer });
+
+        let optsHtml = options.map(opt => `
+            <label class="checkbox-label">
+                <input type="radio" name="pron_q${i}" value="${opt}"> ${opt}
+            </label>
+        `).join("");
+        
+        form.innerHTML += `
+            <div class="question">
+                (${i + 1}) <strong>${target}</strong><br>${optsHtml}
+            </div>`;
+    }
+
+    // 3. 音節とアクセント
+    form.innerHTML += "<h3>3. 次の語を音節に分け（ハイフン区切り）、アクセントのある音節を書きなさい。（5問）</h3>";
+    form.innerHTML += `<p style="font-size:14px; color:#666;">例: casa → 音節分け: ca-sa / アクセント: ca</p>`;
+    const selectedAccents = shuffle(accents).slice(0, 5);
+    selectedAccents.forEach((q, i) => {
+        currentQuizData.accents.push(q);
+        form.innerHTML += `
+            <div class="question">
+                (${i + 1}) <strong>${q.word}</strong><br>
+                音節分け: <input type="text" id="syl_q${i}" placeholder="例: ${q.syllables}"> 
+                アクセント: <input type="text" id="acc_q${i}" placeholder="例: ${q.accent}" style="width:80px;">
+            </div>`;
+    });
+
+    // 4. 会話（ボタンで選択肢を表示）
+    form.innerHTML += "<h3>4. 会話の空欄に合う適切なセリフを選びなさい。</h3>";
+    let convIndex = 0;
+    conversations.forEach((conv, blockIdx) => {
+        let blockHtml = `<div class="conv-block"><div style="font-size:14px; color:#666; margin-bottom:10px;">会話 ${blockIdx + 1}</div>`;
+        conv.forEach(line => {
+            currentQuizData.conversation.push({ id: convIndex, answer: line.t });
+            let optsHtml = getOptions(line.t).map(opt => `<option value="${opt}">${opt}</option>`).join("");
+            blockHtml += `
+                <div class="conv-line">
+                    <div class="conv-speaker">${line.s} :</div>
+                    <div>
+                        <button type="button" class="show-opt-btn" onclick="document.getElementById('conv_q${convIndex}').style.display='inline-block'; this.style.display='none';">選択肢を表示</button>
+                        <select id="conv_q${convIndex}" style="display:none;">
+                            <option value="">-- 選択してください --</option>
+                            ${optsHtml}
+                        </select>
+                    </div>
+                </div>`;
+            convIndex++;
+        });
+        blockHtml += `</div>`;
+        form.innerHTML += blockHtml;
+    });
+}
+
+function gradeQuiz() {
+    let score = 0; let total = 0;
+    let feedback = "<h2>採点結果</h2>";
+
+    // 1. 数詞
+    feedback += "<h3>1. 数詞</h3>";
+    currentQuizData.numbers.forEach((q, i) => {
+        total++;
+        const ans = normalizeText(document.getElementById(`num_q${i}`).value);
+        if (ans === q.word) { score++; feedback += `<p class="correct">(${i+1}) 正解</p>`; } 
+        else { feedback += `<p class="incorrect">(${i+1}) 不正解（正答: ${q.word}）</p>`; }
+    });
+
+    // 2. 発音
+    feedback += "<h3>2. 発音</h3>";
+    currentQuizData.pronunciation.forEach((q, i) => {
+        total++;
+        const selected = document.querySelector(`input[name="pron_q${i}"]:checked`);
+        if (selected && selected.value === q.answer) { score++; feedback += `<p class="correct">(${i+1}) 正解</p>`; } 
+        else { feedback += `<p class="incorrect">(${i+1}) 不正解（正答: ${q.answer}）</p>`; }
+    });
+
+    // 3. 音節とアクセント
+    feedback += "<h3>3. 音節とアクセント</h3>";
+    currentQuizData.accents.forEach((q, i) => {
+        total += 2; // 音節とアクセントで2点満点
+        const ansSyl = normalizeText(document.getElementById(`syl_q${i}`).value);
+        const ansAcc = normalizeText(document.getElementById(`acc_q${i}`).value).replace(/-/g, ''); // ハイフン誤入力対策
+
+        let isSylOk = (ansSyl === q.syllables);
+        let isAccOk = (ansAcc === normalizeText(q.accent));
+
+        let txt = `(${i+1}) ${q.word}: `;
+        if (isSylOk && isAccOk) { score += 2; feedback += `<p class="correct">${txt} 完全正解！</p>`; } 
+        else {
+            if (isSylOk) { score++; txt += `<span class="correct">音節OK</span>, `; } else { txt += `<span class="incorrect">音節NG(正答:${q.syllables})</span>, `; }
+            if (isAccOk) { score++; txt += `<span class="correct">アクセントOK</span>`; } else { txt += `<span class="incorrect">アクセントNG(正答:${q.accent})</span>`; }
+            feedback += `<p>${txt}</p>`;
+        }
+    });
+
+    // 4. 会話
+    feedback += "<h3>4. 会話</h3>";
+    currentQuizData.conversation.forEach((q, i) => {
+        total++;
+        const ans = document.getElementById(`conv_q${q.id}`).value;
+        if (ans === q.answer) { score++; feedback += `<p class="correct">Q${i+1}: 正解</p>`; } 
+        else { feedback += `<p class="incorrect">Q${i+1}: 不正解（正答: ${q.answer}）</p>`; }
+    });
+
+    feedback = `<h2 style="color:#1976D2; font-size:24px;">総合得点: ${score} / ${total} 点</h2>` + feedback;
+    const resDiv = document.getElementById("result");
+    resDiv.innerHTML = feedback;
+    resDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+window.onload = generateQuiz;
+</script>
+</body>
+</html>
