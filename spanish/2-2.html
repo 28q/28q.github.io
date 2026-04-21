@@ -47,7 +47,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        input[type="text"] { width: 150px; margin: 0 10px; }
+        input[type="text"] { width: 160px; margin: 0 10px; }
         
         .question { margin-bottom: 15px; padding: 10px; background-color: #fafafa; border-radius: 6px; }
         .checkbox-label {
@@ -64,12 +64,21 @@
             border-radius: 0 6px 6px 0;
         }
         .conv-line { margin: 10px 0; display: flex; align-items: center; }
-        .conv-speaker { font-weight: bold; width: 100px; }
+        .conv-speaker { font-weight: bold; width: 100px; color: #333; }
+        .conv-text-filled { color: #555; font-style: italic; }
         select { width: 300px; }
 
         .correct { color: #2e7d32; font-weight: bold; margin: 2px 0; }
         .incorrect { color: #c62828; font-weight: bold; margin: 2px 0; }
         #result { margin-top: 30px; padding-top: 20px; border-top: 2px dashed #ccc; }
+        .example-box {
+            background-color: #fff3e0;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -105,7 +114,6 @@ const phonemeGroups = {
     "g": ["gato", "goma", "gusano", "lago", "fuego", "guerra", "guitarra", "amigo", "abrigo", "largo", "pague"], // [g]の音 (g, gu)
     "x": ["jabón", "joven", "jugar", "jefe", "jinete", "reloj", "viaje", "gente", "gigante", "genio", "colegio", "página", "rojo", "ojo"] // [x]の音 (j, g)
 };
-// 仲間外れを作るためのペア（似た綴りで発音が違うものを引っかけにする）
 const phonemePairs = { "k": "th", "th": "k", "g": "x", "x": "g" };
 
 // --- 3. アクセント ---
@@ -177,14 +185,13 @@ function generateQuiz() {
             </div>`;
     });
 
-    // 2. 発音（動的生成）
+    // 2. 発音
     form.innerHTML += "<h3>2. 次の単語と同じ発音（子音）を含まないものを1つ選びなさい。（5問）</h3>";
     const keys = Object.keys(phonemeGroups);
     
     for(let i=0; i<5; i++) {
-        // ベースのグループをランダムに選ぶ
         let baseKey = keys[Math.floor(Math.random() * keys.length)];
-        let outcastKey = phonemePairs[baseKey]; // 対になる引っかけグループ
+        let outcastKey = phonemePairs[baseKey];
         
         let baseWords = shuffle([...phonemeGroups[baseKey]]);
         let outcastWords = shuffle([...phonemeGroups[outcastKey]]);
@@ -210,37 +217,66 @@ function generateQuiz() {
 
     // 3. 音節とアクセント
     form.innerHTML += "<h3>3. 次の語を音節に分け（ハイフン区切り）、アクセントのある音節を書きなさい。（5問）</h3>";
-    form.innerHTML += `<p style="font-size:14px; color:#666;">例: casa → 音節分け: ca-sa / アクセント: ca</p>`;
+    // 例題を独立したボックスとして追加（問題群にない単語を使用）
+    form.innerHTML += `
+        <div class="example-box">
+            <strong>【解答例】</strong><br>
+            問題: computadora<br>
+            音節分け: com-pu-ta-do-ra &nbsp; / &nbsp; アクセント: do
+        </div>`;
+        
     const selectedAccents = shuffle(accents).slice(0, 5);
     selectedAccents.forEach((q, i) => {
         currentQuizData.accents.push(q);
         form.innerHTML += `
             <div class="question">
                 (${i + 1}) <strong>${q.word}</strong><br>
-                音節分け: <input type="text" id="syl_q${i}" placeholder="例: ${q.syllables}"> 
-                アクセント: <input type="text" id="acc_q${i}" placeholder="例: ${q.accent}" style="width:80px;">
+                音節分け: <input type="text" id="syl_q${i}" autocomplete="off"> 
+                アクセント: <input type="text" id="acc_q${i}" autocomplete="off" style="width:80px;">
             </div>`;
     });
 
-    // 4. 会話（ボタンで選択肢を表示）
+    // 4. 会話
     form.innerHTML += "<h3>4. 会話の空欄に合う適切なセリフを選びなさい。</h3>";
+    
+    // 全14箇所のインデックス配列を作り、シャッフルして出題箇所を6箇所（ランダム）選ぶ
+    let totalConvLines = 14;
+    let targetQuestionCount = 6; // 出題する問題数
+    let allIndices = Array.from({length: totalConvLines}, (_, i) => i);
+    let questionIndices = shuffle(allIndices).slice(0, targetQuestionCount);
+    
     let convIndex = 0;
+    let questionCount = 0; // 画面表示用（Q1, Q2...）
+    
     conversations.forEach((conv, blockIdx) => {
         let blockHtml = `<div class="conv-block"><div style="font-size:14px; color:#666; margin-bottom:10px;">会話 ${blockIdx + 1}</div>`;
+        
         conv.forEach(line => {
-            currentQuizData.conversation.push({ id: convIndex, answer: line.t });
-            let optsHtml = getOptions(line.t).map(opt => `<option value="${opt}">${opt}</option>`).join("");
-            blockHtml += `
-                <div class="conv-line">
-                    <div class="conv-speaker">${line.s} :</div>
+            let isQuestion = questionIndices.includes(convIndex);
+            
+            blockHtml += `<div class="conv-line">
+                            <div class="conv-speaker">${line.s} :</div>`;
+                            
+            if (isQuestion) {
+                // 問題として出題する箇所
+                currentQuizData.conversation.push({ id: convIndex, answer: line.t, displayNum: questionCount + 1 });
+                let optsHtml = getOptions(line.t).map(opt => `<option value="${opt}">${opt}</option>`).join("");
+                blockHtml += `
                     <div>
+                        <span style="font-weight:bold; color:#1976D2; margin-right:5px;">(Q${questionCount + 1})</span>
                         <button type="button" class="show-opt-btn" onclick="document.getElementById('conv_q${convIndex}').style.display='inline-block'; this.style.display='none';">選択肢を表示</button>
                         <select id="conv_q${convIndex}" style="display:none;">
                             <option value="">-- 選択してください --</option>
                             ${optsHtml}
                         </select>
-                    </div>
-                </div>`;
+                    </div>`;
+                questionCount++;
+            } else {
+                // すでに埋まっているテキストとして表示
+                blockHtml += `<div class="conv-text-filled">${line.t}</div>`;
+            }
+            
+            blockHtml += `</div>`;
             convIndex++;
         });
         blockHtml += `</div>`;
@@ -275,7 +311,7 @@ function gradeQuiz() {
     currentQuizData.accents.forEach((q, i) => {
         total += 2; // 音節とアクセントで2点満点
         const ansSyl = normalizeText(document.getElementById(`syl_q${i}`).value);
-        const ansAcc = normalizeText(document.getElementById(`acc_q${i}`).value).replace(/-/g, ''); // ハイフン誤入力対策
+        const ansAcc = normalizeText(document.getElementById(`acc_q${i}`).value).replace(/-/g, '');
 
         let isSylOk = (ansSyl === q.syllables);
         let isAccOk = (ansAcc === normalizeText(q.accent));
@@ -291,11 +327,11 @@ function gradeQuiz() {
 
     // 4. 会話
     feedback += "<h3>4. 会話</h3>";
-    currentQuizData.conversation.forEach((q, i) => {
+    currentQuizData.conversation.forEach((q) => {
         total++;
         const ans = document.getElementById(`conv_q${q.id}`).value;
-        if (ans === q.answer) { score++; feedback += `<p class="correct">Q${i+1}: 正解</p>`; } 
-        else { feedback += `<p class="incorrect">Q${i+1}: 不正解（正答: ${q.answer}）</p>`; }
+        if (ans === q.answer) { score++; feedback += `<p class="correct">Q${q.displayNum}: 正解</p>`; } 
+        else { feedback += `<p class="incorrect">Q${q.displayNum}: 不正解（正答: ${q.answer}）</p>`; }
     });
 
     feedback = `<h2 style="color:#1976D2; font-size:24px;">総合得点: ${score} / ${total} 点</h2>` + feedback;
