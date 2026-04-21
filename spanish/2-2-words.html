@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>2-2 語彙テスト (スペイン語 → 日本語)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f7fa;
+            line-height: 1.8;
+        }
+        h1 { text-align: center; color: #333; }
+        .controls { text-align: center; margin-bottom: 20px; }
+        button.main-btn {
+            padding: 12px 24px; font-size: 16px; margin: 5px;
+            border: none; border-radius: 8px; background-color: #4CAF50;
+            color: white; cursor: pointer; font-weight: bold;
+        }
+        button.main-btn:hover { background-color: #45a049; }
+        button.grade-btn { background-color: #1976D2; }
+        button.grade-btn:hover { background-color: #1565C0; }
+        
+        .show-opt-btn {
+            background-color: #00897B; color: white; border: none;
+            padding: 8px 16px; border-radius: 4px; cursor: pointer;
+            font-size: 14px; margin-top: 5px; transition: background-color 0.2s;
+        }
+        .show-opt-btn:hover { background-color: #00695C; }
+        
+        .quiz-container { max-width: 800px; margin: auto; }
+        .question {
+            background: white; padding: 20px; margin-bottom: 15px;
+            border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 5px solid #2196F3;
+        }
+        .question-word { font-size: 20px; font-weight: bold; color: #1976D2; margin-bottom: 5px; }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .radio-label {
+            display: block; padding: 10px;
+            background-color: #f9f9f9; border: 1px solid #ddd;
+            border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .radio-label:hover { background-color: #e3f2fd; border-color: #2196F3; }
+        input[type="radio"] { margin-right: 10px; transform: scale(1.2); cursor: pointer; }
+
+        .result-msg { font-weight: bold; margin-top: 10px; display: inline-block; }
+        .correct { color: #2e7d32; }
+        .incorrect { color: #c62828; }
+        .note {
+            text-align: center; font-size: 0.95em; color: #555;
+            margin-bottom: 25px; background: #fff3e0; padding: 10px; border-radius: 8px;
+        }
+        #score-display {
+            text-align: center; font-size: 24px; font-weight: bold; color: #1976D2;
+            margin-top: 20px; display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>2-2 語彙テスト<br><span style="font-size:0.7em;">(スペイン語 → 日本語)</span></h1>
+<div class="note">
+    ※ スペイン語を見て、まずは頭の中で意味を思い浮かべてから「選択肢を表示」ボタンを押しましょう。<br>
+    ※ 該当範囲の全単語（47語）からランダムな順番で出題されます。
+</div>
+
+<div class="controls">
+    <button class="main-btn" onclick="generateQuiz()">シャッフルして再出題</button>
+    <button class="main-btn grade-btn" onclick="checkAnswers()">採点する</button>
+</div>
+
+<div id="score-display"></div>
+<div class="quiz-container" id="quiz"></div>
+
+<div class="controls" style="margin-top: 30px;">
+    <button class="main-btn grade-btn" onclick="checkAnswers()">採点する</button>
+</div>
+
+<script>
+/* 語彙テスト データ（全範囲） */
+const vocabList = [
+    { sp: "familia", jp: "家族" },
+    { sp: "padre", jp: "父親" },
+    { sp: "madre", jp: "母親" },
+    { sp: "padres", jp: "両親" },
+    { sp: "hijo", jp: "息子" },
+    { sp: "hija", jp: "娘" },
+    { sp: "hermano", jp: "兄弟、兄、弟" },
+    { sp: "hermana", jp: "姉妹、姉、妹" },
+    { sp: "abuelo", jp: "祖父" },
+    { sp: "abuela", jp: "祖母" },
+    { sp: "nieto", jp: "孫（男性）" },
+    { sp: "nieta", jp: "孫（女性）" },
+    { sp: "tío", jp: "おじ" },
+    { sp: "tía", jp: "おば" },
+    { sp: "primo", jp: "いとこ（男性）" },
+    { sp: "prima", jp: "いとこ（女性）" },
+    { sp: "sobrino", jp: "甥" },
+    { sp: "sobrina", jp: "姪" },
+    { sp: "marido", jp: "夫" },
+    { sp: "esposo", jp: "夫" },
+    { sp: "mujer", jp: "妻" },
+    { sp: "esposa", jp: "妻" },
+    { sp: "pareja", jp: "カップル" },
+    { sp: "novio", jp: "恋人（男性）" },
+    { sp: "novia", jp: "恋人（女性）" },
+    { sp: "bebé", jp: "赤ん坊" },
+    { sp: "niño", jp: "子供（男性）" },
+    { sp: "niña", jp: "子供（女性）" },
+    { sp: "chico", jp: "男の子、若者（男性）" },
+    { sp: "muchacho", jp: "男の子、若者（男性）" },
+    { sp: "chica", jp: "女の子、若者（女性）" },
+    { sp: "muchacha", jp: "女の子、若者（女性）" },
+    { sp: "joven", jp: "若者（男女同形）" },
+    { sp: "adulto", jp: "おとな（男性）" },
+    { sp: "adulta", jp: "おとな（女性）" },
+    { sp: "viejo", jp: "老人（男性）" },
+    { sp: "anciano", jp: "老人（男性）" },
+    { sp: "vieja", jp: "老人（女性）" },
+    { sp: "anciana", jp: "老人（女性）" },
+    { sp: "nombre", jp: "名前" },
+    { sp: "apellido", jp: "名字" },
+    { sp: "dirección", jp: "住所" },
+    { sp: "código postal", jp: "郵便番号" },
+    { sp: "número de teléfono", jp: "電話番号" },
+    { sp: "prefijo", jp: "市外局番、国番号" },
+    { sp: "extensión", jp: "内線" },
+    { sp: "lugar de nacimiento", jp: "出生地" },
+    { sp: "fecha de nacimiento", jp: "生年月日" }
+];
+
+// 日本語の選択肢の重複を避けるためのユニークリスト
+const uniqueJpList = [...new Set(vocabList.map(item => item.jp))];
+let currentQuizSet = [];
+
+function shuffle(array) {
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+}
+
+// 4択の選択肢を生成（正解1つ + ダミー3つ）
+function getOptions(correctJp) {
+    let dummies = uniqueJpList.filter(jp => jp !== correctJp);
+    dummies = shuffle(dummies).slice(0, 3);
+    return shuffle([correctJp, ...dummies]);
+}
+
+function generateQuiz() {
+    const quizContainer = document.getElementById("quiz");
+    quizContainer.innerHTML = "";
+    document.getElementById("score-display").style.display = "none";
+    
+    // 全単語をシャッフル
+    currentQuizSet = shuffle(vocabList);
+
+    currentQuizSet.forEach((item, index) => {
+        let options = getOptions(item.jp);
+        let optionsHtml = options.map((opt, optIndex) => `
+            <label class="radio-label">
+                <input type="radio" name="q${index}" value="${opt}">
+                ${opt}
+            </label>
+        `).join("");
+
+        quizContainer.innerHTML += `
+            <div class="question" id="questionBox-${index}">
+                <div class="question-word">問 ${index + 1}. &nbsp;&nbsp; ${item.sp}</div>
+                <button type="button" class="show-opt-btn" onclick="document.getElementById('options-${index}').style.display='grid'; this.style.display='none';">選択肢を表示</button>
+                <div class="options-grid" id="options-${index}" style="display: none;">
+                    ${optionsHtml}
+                </div>
+                <div class="result-msg" id="result-${index}"></div>
+            </div>
+        `;
+    });
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function checkAnswers() {
+    let score = 0;
+    
+    currentQuizSet.forEach((item, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        const resultMsg = document.getElementById(`result-${index}`);
+        const questionBox = document.getElementById(`questionBox-${index}`);
+        const optionsDiv = document.getElementById(`options-${index}`);
+        const showBtn = questionBox.querySelector('.show-opt-btn');
+        
+        // 採点時は強制的に選択肢を表示させる
+        if(optionsDiv.style.display === 'none') {
+            optionsDiv.style.display = 'grid';
+            showBtn.style.display = 'none';
+        }
+        
+        if (!selected) {
+            resultMsg.innerHTML = `❌ 未解答（正答: ${item.jp}）`;
+            resultMsg.className = "result-msg incorrect";
+            questionBox.style.borderLeftColor = "#c62828";
+            questionBox.style.backgroundColor = "#ffebee";
+            return;
+        }
+
+        if (selected.value === item.jp) {
+            score++;
+            resultMsg.innerHTML = "⭕ 正解";
+            resultMsg.className = "result-msg correct";
+            questionBox.style.borderLeftColor = "#2e7d32";
+            questionBox.style.backgroundColor = "#e8f5e9";
+        } else {
+            resultMsg.innerHTML = `❌ 不正解（正答: ${item.jp}）`;
+            resultMsg.className = "result-msg incorrect";
+            questionBox.style.borderLeftColor = "#c62828";
+            questionBox.style.backgroundColor = "#ffebee";
+        }
+    });
+    
+    // スコア表示
+    const scoreDisplay = document.getElementById("score-display");
+    scoreDisplay.innerHTML = `採点結果: ${score} / ${currentQuizSet.length} 点`;
+    scoreDisplay.style.display = "block";
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 初期表示
+generateQuiz();
+</script>
+
+</body>
+</html>
